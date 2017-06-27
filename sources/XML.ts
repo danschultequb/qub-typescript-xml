@@ -1,4 +1,4 @@
-import * as qub from "Qub";
+import * as qub from "qub";
 
 /**
  * The different types of Lexes in an XML document.
@@ -804,8 +804,8 @@ export abstract class TagWithAttributes extends Tag {
      */
     public get attributes(): qub.Iterable<Attribute> {
         return this.segments
-            .where((segment) => segment instanceof Attribute)
-            .map((segment) => segment as Attribute);
+            .where((segment: Segment) => segment instanceof Attribute)
+            .map((segment: Segment) => segment as Attribute);
     }
 }
 
