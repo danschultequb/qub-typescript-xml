@@ -1,6 +1,6 @@
 {
   "name": "qub-xml",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A collection of classes and functions for interacting with XML documents",
   "main": "output/sources/Xml",
   "typings": "output/sources/Xml",
