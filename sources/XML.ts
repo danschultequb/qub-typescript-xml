@@ -52,35 +52,32 @@ export class FormatContext {
     private _indentStack = new qub.Stack<string>();
 
     constructor(private _data?: FormatContextData) {
-        if (!this._data) {
-            this._data = {};
+        if (!_data) {
+            _data = {};
+            this._data = _data;
         }
 
-        if (!qub.isDefined(this._data.alignAttributes)) {
-            this._data.alignAttributes = false;
+        if (!qub.isDefined(_data.alignAttributes)) {
+            _data.alignAttributes = false;
         }
 
-        if (!qub.isDefined(this._data.currentIndent)) {
-            this._data.currentIndent = "";
+        if (!_data.newline) {
+            _data.newline = "\n";
         }
 
-        if (!qub.isDefined(this._data.newline)) {
-            this._data.newline = "\n";
+        if (!_data.singleIndent) {
+            _data.singleIndent = "  ";
         }
 
-        if (!qub.isDefined(this._data.singleIndent)) {
-            this._data.singleIndent = "  ";
-        }
-
-        if (!qub.isDefined(this._data.currentIndent)) {
-            this._data.currentIndent = "";
+        if (!qub.isDefined(_data.currentIndent)) {
+            _data.currentIndent = "";
         }
         else {
-            this._indentStack.push(this._data.currentIndent)
+            this._indentStack.push(_data.currentIndent)
         }
 
-        if (!qub.isDefined(this._data.currentColumnIndex)) {
-            this._data.currentColumnIndex = 0;
+        if (!qub.isDefined(_data.currentColumnIndex)) {
+            _data.currentColumnIndex = 0;
         }
     }
 
