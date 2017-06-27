@@ -34,11 +34,11 @@ function parseXmlLexes(text: string, startIndex: number = 0): qub.Indexable<xml.
 /**
  * Parse an XML Name Segment from the provided text at the provided start index.
  */
-export function parseName(text: string, startIndex: number = 0): xml.Name {
+function parseName(text: string, startIndex: number = 0): xml.Name {
     return new xml.Name(parseXmlLexes(text, startIndex));
 }
 
-export function parseAttribute(text: string, startIndex: number = 0): xml.Attribute {
+function parseAttribute(text: string, startIndex: number = 0): xml.Attribute {
     const tokenizer = new xml.Tokenizer(text, startIndex);
     const tagSegments = new qub.ArrayList<xml.Segment>();
     return tokenizer.readAttribute(tagSegments);
@@ -54,7 +54,7 @@ function parseText(text: string, startIndex: number = 0): xml.Text {
 /**
  * Parse an XML QuotedString Segment from the provided text at the provided start index.
  */
-export function parseQuotedString(text: string, startIndex: number = 0): xml.QuotedString {
+function parseQuotedString(text: string, startIndex: number = 0): xml.QuotedString {
     return new xml.QuotedString(parseXmlLexes(text, startIndex));
 }
 
@@ -169,7 +169,7 @@ function parseProlog(text: string): xml.Prolog {
 /**
  * Parse an Element from the provided text at the provided start index.
  */
-export function parseElement(text: string, startIndex: number = 0): xml.Element {
+function parseElement(text: string, startIndex: number = 0): xml.Element {
     const tokenizer = new xml.Tokenizer(text, startIndex);
     assert.deepEqual(tokenizer.next(), true);
     assert(tokenizer.getCurrent() instanceof xml.StartTag, "The first segment of an Element's text must be a start tag.");
@@ -179,7 +179,7 @@ export function parseElement(text: string, startIndex: number = 0): xml.Element 
 /**
  * Parse an EmptyElement from the provided text at the provided start index.
  */
-export function parseEmptyElement(text: string, startIndex: number = 0): xml.EmptyElement {
+function parseEmptyElement(text: string, startIndex: number = 0): xml.EmptyElement {
     const tokenizer = new xml.Tokenizer(text, startIndex);
     assert.deepEqual(tokenizer.next(), true);
     assert(tokenizer.getCurrent() instanceof xml.EmptyElement, "The first segment of an EmptyElement's text must be an EmptyElement.");
