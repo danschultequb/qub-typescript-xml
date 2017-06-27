@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/danschultequb/qub-typescript-xml.svg?branch=master)](https://travis-ci.org/danschultequb/qub-typescript-xml)
-[![Coverage Status](https://coveralls.io/repos/github/danschultequb/qub-typescript-xml/badge.svg?branch=AddCoverallsIntegration)](https://coveralls.io/github/danschultequb/qub-typescript-xml?branch=AddCoverallsIntegration)
-[![npm version](https://badge.fury.io/js/qub.svg)](https://badge.fury.io/js/qub)
+[![Coverage Status](https://coveralls.io/repos/github/danschultequb/qub-typescript-xml/badge.svg?branch=master)](https://coveralls.io/github/danschultequb/qub-typescript-xml?branch=master)
+[![npm version](https://badge.fury.io/js/qub-xml.svg)](https://badge.fury.io/js/qub-xml)
 
 # Qub XML Tools for Typescript
 

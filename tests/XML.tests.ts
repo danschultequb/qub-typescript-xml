@@ -3,63 +3,59 @@ import * as assert from "assert";
 import * as qub from "qub";
 import * as xml from "../sources/XML";
 
+function parseQubLexes(text: string, startIndex: number = 0): qub.Iterable<qub.Lex> {
+    return new qub.Lexer(text, startIndex).toArrayList();
+}
+
 function parseLetters(text: string, startIndex: number = 0): xml.Lex {
-    return xml.Letters(qub.Letters(text, startIndex), startIndex);
+    return xml.Letters(text, startIndex);
 }
 
 function parseDigits(text: string, startIndex: number = 0): xml.Lex {
-    return xml.Digits(qub.Digits(text, startIndex), startIndex);
+    return xml.Digits(text, startIndex);
 }
 
 function parseWhitespace(text: string, startIndex: number = 0): xml.Lex {
-    const lexes: qub.Iterable<qub.Lex> = qubTest.parseLexes(text, startIndex);
-    assert(lexes);
-    assert(lexes.any());
-    for (const lex of lexes) {
-        assert(lex.getType() === qub.LexType.Space ||
-            lex.getType() === qub.LexType.Tab ||
-            lex.getType() === qub.LexType.CarriageReturn);
-    }
-    return xml.Whitespace(lexes, startIndex);
+    return xml.Whitespace(text, startIndex);
 }
 
 function parseNewLine(text: string, startIndex: number = 0): xml.Lex {
-    const basicTokens: qub.Iterable<qub.Lex> = qubTest.parseLexes(text, startIndex);
-    assert.deepStrictEqual(basicTokens.getCount(), 1);
-    assert.deepStrictEqual(basicTokens.first().getType(), qub.LexType.NewLine);
-    return xml.NewLine(basicTokens.first(), startIndex);
+    return xml.NewLine(text, startIndex);
 }
 
 function parseUnrecognized(text: string, startIndex: number = 0): xml.Lex {
-    const basicTokens: qub.Iterable<qub.Lex> = qubTest.parseLexes(text, startIndex);
-    assert.deepStrictEqual(basicTokens.getCount(), 1);
-    return xml.Unrecognized(basicTokens.first(), startIndex);
+    return xml.Unrecognized(text, startIndex);
+}
+
+function parseXmlLexes(text: string, startIndex: number = 0): qub.Indexable<xml.Lex> {
+    return new xml.Lexer(text, startIndex).toArrayList();
 }
 
 /**
  * Parse an XML Name Segment from the provided text at the provided start index.
  */
 export function parseName(text: string, startIndex: number = 0): xml.Name {
-    return new xml.Name(parseLexes(text, startIndex));
+    return new xml.Name(parseXmlLexes(text, startIndex));
 }
 
 export function parseAttribute(text: string, startIndex: number = 0): xml.Attribute {
     const tokenizer = new xml.Tokenizer(text, startIndex);
-    return tokenizer.readAttribute(new qub.ArrayList<xml.Segment>());
+    const tagSegments = new qub.ArrayList<xml.Segment>();
+    return tokenizer.readAttribute(tagSegments);
 }
 
 /**
  * Parse an XML Text token from the provided text string at the provided start index.
  */
 function parseText(text: string, startIndex: number = 0): xml.Text {
-    return new xml.Text(parseLexes(text, startIndex));
+    return new xml.Text(parseXmlLexes(text, startIndex));
 }
 
 /**
  * Parse an XML QuotedString Segment from the provided text at the provided start index.
  */
 export function parseQuotedString(text: string, startIndex: number = 0): xml.QuotedString {
-    return new xml.QuotedString(parseLexes(text, startIndex));
+    return new xml.QuotedString(parseXmlLexes(text, startIndex));
 }
 
 /**
@@ -67,7 +63,7 @@ export function parseQuotedString(text: string, startIndex: number = 0): xml.Quo
  */
 function parseDeclaration(text: string, startIndex: number = 0): xml.Declaration {
     const tokenizer = new xml.Tokenizer(text, startIndex);
-    assert.deepStrictEqual(tokenizer.next(), true);
+    assert.deepEqual(tokenizer.next(), true);
     assert(tokenizer.getCurrent() instanceof xml.Declaration, "When parsing an XML Declaration, the first segment must be a Declaration.");
     return tokenizer.getCurrent() as xml.Declaration;
 }
@@ -77,7 +73,7 @@ function parseDeclaration(text: string, startIndex: number = 0): xml.Declaration
  */
 function parseDOCTYPE(text: string, startIndex: number = 0): xml.DOCTYPE {
     const tokenizer = new xml.Tokenizer(text, startIndex);
-    assert.deepStrictEqual(tokenizer.next(), true);
+    assert.deepEqual(tokenizer.next(), true);
     assert(tokenizer.getCurrent() instanceof xml.DOCTYPE);
     return tokenizer.getCurrent() as xml.DOCTYPE;
 }
@@ -87,7 +83,7 @@ function parseDOCTYPE(text: string, startIndex: number = 0): xml.DOCTYPE {
  * start index.
  */
 function parseInternalDefinition(text: string, startIndex: number = 0): xml.InternalDefinition {
-    return new xml.InternalDefinition(parseLexes(text, startIndex));
+    return new xml.InternalDefinition(parseXmlLexes(text, startIndex));
 }
 
 /**
@@ -95,7 +91,7 @@ function parseInternalDefinition(text: string, startIndex: number = 0): xml.Inte
  */
 function parseProcessingInstruction(text: string, startIndex: number = 0): xml.DOCTYPE {
     const tokenizer = new xml.Tokenizer(text, startIndex);
-    assert.deepStrictEqual(tokenizer.next(), true);
+    assert.deepEqual(tokenizer.next(), true);
     assert(tokenizer.getCurrent() instanceof xml.ProcessingInstruction);
     return tokenizer.getCurrent() as xml.ProcessingInstruction;
 }
@@ -105,7 +101,7 @@ function parseProcessingInstruction(text: string, startIndex: number = 0): xml.D
  */
 function parseStartTag(text: string, startIndex: number = 0): xml.StartTag {
     const tokenizer = new xml.Tokenizer(text, startIndex);
-    assert.deepStrictEqual(tokenizer.next(), true);
+    assert.deepEqual(tokenizer.next(), true);
     assert(tokenizer.getCurrent() instanceof xml.StartTag);
     return tokenizer.getCurrent() as xml.StartTag;
 }
@@ -115,7 +111,7 @@ function parseStartTag(text: string, startIndex: number = 0): xml.StartTag {
  */
 function parseEndTag(text: string, startIndex: number = 0): xml.EndTag {
     const tokenizer = new xml.Tokenizer(text, startIndex);
-    assert.deepStrictEqual(tokenizer.next(), true);
+    assert.deepEqual(tokenizer.next(), true);
     assert(tokenizer.getCurrent() instanceof xml.EndTag, `"${text}" does not parse to an EndTag.`);
     return tokenizer.getCurrent() as xml.EndTag;
 }
@@ -125,7 +121,7 @@ function parseEndTag(text: string, startIndex: number = 0): xml.EndTag {
  */
 function parseUnrecognizedTag(text: string, startIndex: number = 0): xml.UnrecognizedTag {
     const tokenizer = new xml.Tokenizer(text, startIndex);
-    assert.deepStrictEqual(tokenizer.next(), true);
+    assert.deepEqual(tokenizer.next(), true);
     assert(tokenizer.getCurrent() instanceof xml.UnrecognizedTag);
     return tokenizer.getCurrent() as xml.UnrecognizedTag;
 }
@@ -135,7 +131,7 @@ function parseUnrecognizedTag(text: string, startIndex: number = 0): xml.Unrecog
  */
 function parseCDATA(text: string, startIndex: number = 0): xml.CDATA {
     const tokenizer = new xml.Tokenizer(text, startIndex);
-    assert.deepStrictEqual(tokenizer.next(), true);
+    assert.deepEqual(tokenizer.next(), true);
     assert(tokenizer.getCurrent() instanceof xml.CDATA);
     return tokenizer.getCurrent() as xml.CDATA;
 }
@@ -145,7 +141,7 @@ function parseCDATA(text: string, startIndex: number = 0): xml.CDATA {
  */
 function parseComment(text: string, startIndex: number = 0): xml.Comment {
     const tokenizer = new xml.Tokenizer(text, startIndex);
-    assert.deepStrictEqual(tokenizer.next(), true);
+    assert.deepEqual(tokenizer.next(), true);
     assert(tokenizer.getCurrent() instanceof xml.Comment);
     return tokenizer.getCurrent() as xml.Comment;
 }
@@ -175,7 +171,7 @@ function parseProlog(text: string): xml.Prolog {
  */
 export function parseElement(text: string, startIndex: number = 0): xml.Element {
     const tokenizer = new xml.Tokenizer(text, startIndex);
-    assert.deepStrictEqual(tokenizer.next(), true);
+    assert.deepEqual(tokenizer.next(), true);
     assert(tokenizer.getCurrent() instanceof xml.StartTag, "The first segment of an Element's text must be a start tag.");
     return xml.parseElement(tokenizer);
 }
@@ -185,24 +181,24 @@ export function parseElement(text: string, startIndex: number = 0): xml.Element 
  */
 export function parseEmptyElement(text: string, startIndex: number = 0): xml.EmptyElement {
     const tokenizer = new xml.Tokenizer(text, startIndex);
-    assert.deepStrictEqual(tokenizer.next(), true);
+    assert.deepEqual(tokenizer.next(), true);
     assert(tokenizer.getCurrent() instanceof xml.EmptyElement, "The first segment of an EmptyElement's text must be an EmptyElement.");
     return tokenizer.getCurrent() as xml.EmptyElement;
 }
 
 suite("XML", () => {
     function basicSegmentTests(segment: xml.Segment, startIndex: number, text: string): void {
-        assert.deepStrictEqual(segment.toString(), text, "Wrong toString().");
-        assert.deepStrictEqual(segment.getLength(), text.length, "Wrong length.");
-        assert.deepStrictEqual(segment.startIndex, startIndex, "Wrong start index.");
-        assert.deepStrictEqual(segment.afterEndIndex, startIndex + text.length, "Wrong after end index.");
-        assert.deepStrictEqual(segment.span, new qub.Span(startIndex, text.length), "Wrong span.");
+        assert.deepEqual(segment.toString(), text, "Wrong toString().");
+        assert.deepEqual(segment.getLength(), text.length, "Wrong length.");
+        assert.deepEqual(segment.startIndex, startIndex, "Wrong start index.");
+        assert.deepEqual(segment.afterEndIndex, startIndex + text.length, "Wrong after end index.");
+        assert.deepEqual(segment.span, new qub.Span(startIndex, text.length));
     }
 
     function testContainsIndex(segment: xml.Segment, expected: (index: number) => boolean): void {
         for (let i = segment.startIndex - 1; i <= segment.afterEndIndex + 1; ++i) {
             const expectedContains: boolean = expected(i);
-            assert.deepStrictEqual(segment.containsIndex(i), expectedContains, `Index ${i} should${expectedContains ? "" : "n't"} have been contained by ${qub.escapeAndQuote(segment.toString())}.`);
+            assert.deepEqual(segment.containsIndex(i), expectedContains, `Index ${i} should${expectedContains ? "" : "n't"} have been contained by ${qub.escapeAndQuote(segment.toString())}.`);
         }
     }
 
@@ -210,7 +206,7 @@ suite("XML", () => {
         suite("constructor()", () => {
             test("with no arguments", () => {
                 const context = new xml.FormatContext();
-                assert.deepStrictEqual(context.data, {
+                assert.deepEqual(context.data, {
                     singleIndent: "  ",
                     currentIndent: "",
                     newline: "\n",
@@ -222,7 +218,7 @@ suite("XML", () => {
             function constructorTest(data: xml.FormatContextData, expectedData: xml.FormatContextData): void {
                 test(`with ${JSON.stringify(data)}`, () => {
                     const context = new xml.FormatContext(data);
-                    assert.deepStrictEqual(context.data, expectedData);
+                    assert.deepEqual(context.data, expectedData);
                 });
             }
 
@@ -250,12 +246,191 @@ suite("XML", () => {
                 alignAttributes: false
             });
 
+            constructorTest({ alignAttributes: undefined }, {
+                singleIndent: "  ",
+                currentIndent: "",
+                newline: "\n",
+                currentColumnIndex: 0,
+                alignAttributes: false
+            });
+            constructorTest({ alignAttributes: null }, {
+                singleIndent: "  ",
+                currentIndent: "",
+                newline: "\n",
+                currentColumnIndex: 0,
+                alignAttributes: false
+            });
+            constructorTest({ alignAttributes: false }, {
+                singleIndent: "  ",
+                currentIndent: "",
+                newline: "\n",
+                currentColumnIndex: 0,
+                alignAttributes: false
+            });
             constructorTest({ alignAttributes: true }, {
                 singleIndent: "  ",
                 currentIndent: "",
                 newline: "\n",
                 currentColumnIndex: 0,
                 alignAttributes: true
+            });
+
+            constructorTest({ currentIndent: undefined }, {
+                singleIndent: "  ",
+                currentIndent: "",
+                newline: "\n",
+                currentColumnIndex: 0,
+                alignAttributes: false
+            });
+            constructorTest({ currentIndent: null }, {
+                singleIndent: "  ",
+                currentIndent: "",
+                newline: "\n",
+                currentColumnIndex: 0,
+                alignAttributes: false
+            });
+            constructorTest({ currentIndent: "" }, {
+                singleIndent: "  ",
+                currentIndent: "",
+                newline: "\n",
+                currentColumnIndex: 0,
+                alignAttributes: false
+            });
+            constructorTest({ currentIndent: "     " }, {
+                singleIndent: "  ",
+                currentIndent: "     ",
+                newline: "\n",
+                currentColumnIndex: 0,
+                alignAttributes: false
+            });
+            constructorTest({ currentIndent: "abc" }, {
+                singleIndent: "  ",
+                currentIndent: "abc",
+                newline: "\n",
+                currentColumnIndex: 0,
+                alignAttributes: false
+            });
+
+            constructorTest({ newline: undefined }, {
+                singleIndent: "  ",
+                currentIndent: "",
+                newline: "\n",
+                currentColumnIndex: 0,
+                alignAttributes: false
+            });
+            constructorTest({ newline: null }, {
+                singleIndent: "  ",
+                currentIndent: "",
+                newline: "\n",
+                currentColumnIndex: 0,
+                alignAttributes: false
+            });
+            constructorTest({ newline: "" }, {
+                singleIndent: "  ",
+                currentIndent: "",
+                newline: "\n",
+                currentColumnIndex: 0,
+                alignAttributes: false
+            });
+            constructorTest({ newline: "\n" }, {
+                singleIndent: "  ",
+                currentIndent: "",
+                newline: "\n",
+                currentColumnIndex: 0,
+                alignAttributes: false
+            });
+            constructorTest({ newline: "\r\n" }, {
+                singleIndent: "  ",
+                currentIndent: "",
+                newline: "\r\n",
+                currentColumnIndex: 0,
+                alignAttributes: false
+            });
+            constructorTest({ newline: "ab" }, {
+                singleIndent: "  ",
+                currentIndent: "",
+                newline: "ab",
+                currentColumnIndex: 0,
+                alignAttributes: false
+            });
+
+            constructorTest({ singleIndent: undefined }, {
+                singleIndent: "  ",
+                currentIndent: "",
+                newline: "\n",
+                currentColumnIndex: 0,
+                alignAttributes: false
+            });
+            constructorTest({ singleIndent: null }, {
+                singleIndent: "  ",
+                currentIndent: "",
+                newline: "\n",
+                currentColumnIndex: 0,
+                alignAttributes: false
+            });
+            constructorTest({ singleIndent: "" }, {
+                singleIndent: "  ",
+                currentIndent: "",
+                newline: "\n",
+                currentColumnIndex: 0,
+                alignAttributes: false
+            });
+            constructorTest({ singleIndent: " " }, {
+                singleIndent: " ",
+                currentIndent: "",
+                newline: "\n",
+                currentColumnIndex: 0,
+                alignAttributes: false
+            });
+            constructorTest({ singleIndent: "  " }, {
+                singleIndent: "  ",
+                currentIndent: "",
+                newline: "\n",
+                currentColumnIndex: 0,
+                alignAttributes: false
+            });
+            constructorTest({ singleIndent: "123" }, {
+                singleIndent: "123",
+                currentIndent: "",
+                newline: "\n",
+                currentColumnIndex: 0,
+                alignAttributes: false
+            });
+
+            constructorTest({ currentColumnIndex: undefined }, {
+                singleIndent: "  ",
+                currentIndent: "",
+                newline: "\n",
+                currentColumnIndex: 0,
+                alignAttributes: false
+            });
+            constructorTest({ currentColumnIndex: null }, {
+                singleIndent: "  ",
+                currentIndent: "",
+                newline: "\n",
+                currentColumnIndex: 0,
+                alignAttributes: false
+            });
+            constructorTest({ currentColumnIndex: -10 }, {
+                singleIndent: "  ",
+                currentIndent: "",
+                newline: "\n",
+                currentColumnIndex: -10,
+                alignAttributes: false
+            });
+            constructorTest({ currentColumnIndex: 0 }, {
+                singleIndent: "  ",
+                currentIndent: "",
+                newline: "\n",
+                currentColumnIndex: 0,
+                alignAttributes: false
+            });
+            constructorTest({ currentColumnIndex: 20 }, {
+                singleIndent: "  ",
+                currentIndent: "",
+                newline: "\n",
+                currentColumnIndex: 20,
+                alignAttributes: false
             });
         });
 
@@ -264,8 +439,8 @@ suite("XML", () => {
                 test(`with ${qub.escapeAndQuote(value)}`, () => {
                     const context = new xml.FormatContext();
                     const result: string = context.update(value);
-                    assert.deepStrictEqual(result, value);
-                    assert.deepStrictEqual(context.currentColumnIndex, expectedCurrentColumnIndex);
+                    assert.deepEqual(result, value);
+                    assert.deepEqual(context.currentColumnIndex, expectedCurrentColumnIndex);
                 });
             }
 
@@ -281,17 +456,17 @@ suite("XML", () => {
     suite("initializeContext()", () => {
         test("with undefined", () => {
             const context: xml.FormatContext = xml.initializeContext(undefined);
-            assert.deepStrictEqual(context, new xml.FormatContext());
+            assert.deepEqual(context, new xml.FormatContext());
         });
 
         test("with null", () => {
             const context: xml.FormatContext = xml.initializeContext(null);
-            assert.deepStrictEqual(context, new xml.FormatContext());
+            assert.deepEqual(context, new xml.FormatContext());
         });
 
         test("with FormatOptions", () => {
             const context: xml.FormatContext = xml.initializeContext({ alignAttributes: true });
-            assert.deepStrictEqual(context, new xml.FormatContext({
+            assert.deepEqual(context, new xml.FormatContext({
                 alignAttributes: true
             }));
         });
@@ -299,15 +474,14 @@ suite("XML", () => {
 
     suite("Lex", () => {
         test("constructor()", () => {
-            const basicTokens = new qub.ArrayList<qub.Lex>([qub.LeftAngleBracket(5)]);
-            const lex = new xml.Lex(basicTokens, 5, xml.LexType.LeftAngleBracket);
-            assert.deepStrictEqual(lex.basicTokens.toArray(), basicTokens.toArray());
-            assert.deepStrictEqual(lex.startIndex, 5);
-            assert.deepStrictEqual(lex.getType(), xml.LexType.LeftAngleBracket);
+            const lex = new xml.Lex("<", 5, xml.LexType.LeftAngleBracket);
+            assert.deepEqual(lex.toString(), "<");
+            assert.deepEqual(lex.startIndex, 5);
+            assert.deepEqual(lex.getType(), xml.LexType.LeftAngleBracket);
 
             const formatContext = new xml.FormatContext();
-            assert.deepStrictEqual(lex.format(formatContext), "<");
-            assert.deepStrictEqual(formatContext.currentColumnIndex, 1);
+            assert.deepEqual(lex.format(formatContext), "<");
+            assert.deepEqual(formatContext.currentColumnIndex, 1);
         });
     });
 
@@ -322,15 +496,15 @@ suite("XML", () => {
                     const lexer = new xml.Lexer(text);
 
                     for (const expectedLex of expectedLexes as xml.Lex[]) {
-                        assert.deepStrictEqual(lexer.next(), true, "Expected more lexes, next() was false.");
-                        assert.deepStrictEqual(lexer.hasStarted(), true, "Expected more lexes, hasStarted() was false.");
-                        assert.deepStrictEqual(lexer.getCurrent(), expectedLex);
+                        assert.deepEqual(lexer.next(), true, "Expected more lexes, next() was false.");
+                        assert.deepEqual(lexer.hasStarted(), true, "Expected more lexes, hasStarted() was false.");
+                        assert.deepEqual(lexer.getCurrent(), expectedLex);
                     }
 
                     for (let i: number = 0; i < 2; ++i) {
-                        assert.deepStrictEqual(lexer.next(), false, "Expected no more lexes, next() was true.");
-                        assert.deepStrictEqual(lexer.hasStarted(), true, "Expected no more lexes, hasStarted() was false.");
-                        assert.deepStrictEqual(lexer.getCurrent(), undefined);
+                        assert.deepEqual(lexer.next(), false, "Expected no more lexes, next() was true.");
+                        assert.deepEqual(lexer.hasStarted(), true, "Expected no more lexes, hasStarted() was false.");
+                        assert.deepEqual(lexer.getCurrent(), undefined);
                     }
                 });
             }
@@ -348,95 +522,102 @@ suite("XML", () => {
 
     suite("Token", () => {
         test("constructor", () => {
-            const token = new xml.Lex(new qub.ArrayList([qub.LeftAngleBracket(15)]), 15, xml.LexType.LeftAngleBracket);
-            basicSegmentTests(token, 15, "<");
-            assert.deepStrictEqual(token.getType(), xml.LexType.LeftAngleBracket);
-            const context = new xml.FormatContext();
-            assert.deepStrictEqual(token.format(context), "<");
-            assert.deepStrictEqual(context.currentColumnIndex, token.getLength());
+            const token = new xml.Lex("<", 15, xml.LexType.LeftAngleBracket);
+            assert.deepEqual(token.toString(), "<");
+            assert.deepEqual(token.getLength(), 1, "Wrong length.");
+            assert.deepEqual(token.startIndex, 15, "Wrong start index.");
+            assert.deepEqual(token.afterEndIndex, 16, "Wrong after end index.");
+            assert.deepEqual(token.getType(), xml.LexType.LeftAngleBracket);
 
-            testContainsIndex(token, (index: number) => { return token.startIndex <= index && index <= token.afterEndIndex; });
+            const context = new xml.FormatContext();
+            assert.deepEqual(token.format(context), "<");
+            assert.deepEqual(context.currentColumnIndex, token.getLength());
+
+            for (let i = token.startIndex - 1; i <= token.afterEndIndex + 1; ++i) {
+                const expectedContains: boolean = token.startIndex <= i && i <= token.afterEndIndex;
+                assert.deepEqual(token.containsIndex(i), expectedContains, `Index ${i} should${expectedContains ? "" : "n't"} have been contained by ${qub.escapeAndQuote(token.toString())}.`);
+            }
         });
     });
 
     test("LeftAngleBracket()", () => {
-        assert.deepStrictEqual(xml.LeftAngleBracket(0), new xml.Lex(new qub.ArrayList([qub.LeftAngleBracket(0)]), 0, xml.LexType.LeftAngleBracket));
+        assert.deepEqual(xml.LeftAngleBracket(0), new xml.Lex("<", 0, xml.LexType.LeftAngleBracket));
     });
 
     test("RightAngleBracket()", () => {
-        assert.deepStrictEqual(xml.RightAngleBracket(1), new xml.Lex(new qub.ArrayList([qub.RightAngleBracket(1)]), 1, xml.LexType.RightAngleBracket));
+        assert.deepEqual(xml.RightAngleBracket(1), new xml.Lex(">", 1, xml.LexType.RightAngleBracket));
     });
 
     test("LeftSquareBracket()", () => {
-        assert.deepStrictEqual(xml.LeftSquareBracket(2), new xml.Lex(new qub.ArrayList([qub.LeftSquareBracket(2)]), 2, xml.LexType.LeftSquareBracket));
+        assert.deepEqual(xml.LeftSquareBracket(2), new xml.Lex("[", 2, xml.LexType.LeftSquareBracket));
     });
 
     test("RightSquareBracket()", () => {
-        assert.deepStrictEqual(xml.RightSquareBracket(3), new xml.Lex(new qub.ArrayList([qub.RightSquareBracket(3)]), 3, xml.LexType.RightSquareBracket));
+        assert.deepEqual(xml.RightSquareBracket(3), new xml.Lex("]", 3, xml.LexType.RightSquareBracket));
     });
 
     test("ExclamationPoint()", () => {
-        assert.deepStrictEqual(xml.ExclamationPoint(4), new xml.Lex(new qub.ArrayList([qub.ExclamationPoint(4)]), 4, xml.LexType.ExclamationPoint));
+        assert.deepEqual(xml.ExclamationPoint(4), new xml.Lex("!", 4, xml.LexType.ExclamationPoint));
     });
 
     test("QuestionMark()", () => {
-        assert.deepStrictEqual(xml.QuestionMark(5), new xml.Lex(new qub.ArrayList([qub.QuestionMark(5)]), 5, xml.LexType.QuestionMark));
+        assert.deepEqual(xml.QuestionMark(5), new xml.Lex("?", 5, xml.LexType.QuestionMark));
     });
 
     test("Dash()", () => {
-        assert.deepStrictEqual(xml.Dash(6), new xml.Lex(new qub.ArrayList([qub.Dash(6)]), 6, xml.LexType.Dash));
+        assert.deepEqual(xml.Dash(6), new xml.Lex("-", 6, xml.LexType.Dash));
     });
 
     test("SingleQuote()", () => {
-        assert.deepStrictEqual(xml.SingleQuote(7), new xml.Lex(new qub.ArrayList([qub.SingleQuote(7)]), 7, xml.LexType.SingleQuote));
+        assert.deepEqual(xml.SingleQuote(7), new xml.Lex(`'`, 7, xml.LexType.SingleQuote));
     });
 
     test("DoubleQuote()", () => {
-        assert.deepStrictEqual(xml.DoubleQuote(8), new xml.Lex(new qub.ArrayList([qub.DoubleQuote(8)]), 8, xml.LexType.DoubleQuote));
+        assert.deepEqual(xml.DoubleQuote(8), new xml.Lex(`"`, 8, xml.LexType.DoubleQuote));
     });
 
     test("Equals()", () => {
-        assert.deepStrictEqual(xml.Equals(9), new xml.Lex(new qub.ArrayList([qub.EqualsSign(9)]), 9, xml.LexType.Equals));
+        assert.deepEqual(xml.Equals(9), new xml.Lex("=", 9, xml.LexType.Equals));
     });
 
     test("Underscore()", () => {
-        assert.deepStrictEqual(xml.Underscore(10), new xml.Lex(new qub.ArrayList([qub.Underscore(10)]), 10, xml.LexType.Underscore));
+        assert.deepEqual(xml.Underscore(10), new xml.Lex("_", 10, xml.LexType.Underscore));
     });
 
     test("Colon()", () => {
-        assert.deepStrictEqual(xml.Colon(11), new xml.Lex(new qub.ArrayList([qub.Colon(11)]), 11, xml.LexType.Colon));
+        assert.deepEqual(xml.Colon(11), new xml.Lex(":", 11, xml.LexType.Colon));
     });
 
     test("Semicolon()", () => {
-        assert.deepStrictEqual(xml.Semicolon(12), new xml.Lex(new qub.ArrayList([qub.Semicolon(12)]), 12, xml.LexType.Semicolon));
+        assert.deepEqual(xml.Semicolon(12), new xml.Lex(";", 12, xml.LexType.Semicolon));
     });
 
     test("Ampersand()", () => {
-        assert.deepStrictEqual(xml.Ampersand(13), new xml.Lex(new qub.ArrayList([qub.Ampersand(13)]), 13, xml.LexType.Ampersand));
+        assert.deepEqual(xml.Ampersand(13), new xml.Lex("&", 13, xml.LexType.Ampersand));
     });
 
     test("ForwardSlash()", () => {
-        assert.deepStrictEqual(xml.ForwardSlash(14), new xml.Lex(new qub.ArrayList([qub.ForwardSlash(14)]), 14, xml.LexType.ForwardSlash));
+        assert.deepEqual(xml.ForwardSlash(14), new xml.Lex("/", 14, xml.LexType.ForwardSlash));
     });
 
     test("Whitespace()", () => {
-        assert.deepStrictEqual(xml.Whitespace(qubTest.parseLexes("  ", 15), 15), new xml.Lex(qubTest.parseLexes("  ", 15), 15, xml.LexType.Whitespace));
+        assert.deepEqual(xml.Whitespace("  ", 15), new xml.Lex("  ", 15, xml.LexType.Whitespace));
     });
 
     test("NewLine()", () => {
-        assert.deepStrictEqual(xml.NewLine(qub.CarriageReturnNewLine(19), 19), new xml.Lex(new qub.ArrayList([qub.CarriageReturnNewLine(19)]), 19, xml.LexType.NewLine));
+        assert.deepEqual(xml.NewLine("\r\n", 19), new xml.Lex("\r\n", 19, xml.LexType.NewLine));
     });
 
     test("Letters()", () => {
-        assert.deepStrictEqual(xml.Letters(qub.Letters("hello", 20), 20), new xml.Lex(new qub.ArrayList([qub.Letters("hello", 20)]), 20, xml.LexType.Letters));
+        assert.deepEqual(xml.Letters("hello", 20), new xml.Lex("hello", 20, xml.LexType.Letters));
     });
 
     test("Digits()", () => {
-        assert.deepStrictEqual(xml.Digits(qub.Digits("12345", 21), 21), new xml.Lex(new qub.ArrayList([qub.Digits("12345", 21)]), 21, xml.LexType.Digits));
+        assert.deepEqual(xml.Digits("12345", 21), new xml.Lex("12345", 21, xml.LexType.Digits));
     });
 
     test("Unrecognized()", () => {
-        assert.deepStrictEqual(xml.Unrecognized(qub.LeftParenthesis(22), 22), new xml.Lex(new qub.ArrayList([qub.LeftParenthesis(22)]), 22, xml.LexType.Unrecognized));
+        assert.deepEqual(xml.Unrecognized("(", 22), new xml.Lex("(", 22, xml.LexType.Unrecognized));
     });
 
     suite("Name", () => {
@@ -445,20 +626,21 @@ suite("XML", () => {
             const startIndex: number = 0;
 
             test(`with ${qub.escapeAndQuote(nameText)}`, () => {
-                const name = new xml.Name(parseLexes(nameText));
-                assert.deepStrictEqual(name.startIndex, startIndex);
-                assert.deepStrictEqual(name.getLength(), expectedLength);
-                assert.deepStrictEqual(name.afterEndIndex, startIndex + expectedLength);
-                assert.deepStrictEqual(name.span, new qub.Span(startIndex, expectedLength));
+                const name = new xml.Name(parseXmlLexes(nameText));
+                assert.deepEqual(name.startIndex, startIndex);
+                assert.deepEqual(name.getLength(), expectedLength);
+                assert.deepEqual(name.afterEndIndex, startIndex + expectedLength);
 
-                assert.deepStrictEqual(name.toString(), nameText);
+                assert.deepEqual(name.span, new qub.Span(startIndex, expectedLength));
+
+                assert.deepEqual(name.toString(), nameText);
 
                 const context = new xml.FormatContext();
-                assert.deepStrictEqual(name.format(context), nameText);
-                assert.deepStrictEqual(context.currentColumnIndex, name.getLength());
+                assert.deepEqual(name.format(context), nameText);
+                assert.deepEqual(context.currentColumnIndex, name.getLength());
 
                 for (let i = name.startIndex - 1; i <= name.afterEndIndex + 1; ++i) {
-                    assert.deepStrictEqual(name.containsIndex(i), name.startIndex <= i && i <= name.afterEndIndex);
+                    assert.deepEqual(name.containsIndex(i), name.startIndex <= i && i <= name.afterEndIndex);
                 }
             });
         }
@@ -487,38 +669,38 @@ suite("XML", () => {
 
             test(`with ${qub.escapeAndQuote(expectedString)}`, () => {
                 const quotedString = new xml.QuotedString(quotedStringLexes);
-                assert.deepStrictEqual(quotedString.startIndex, startIndex);
-                assert.deepStrictEqual(quotedString.getLength(), expectedLength);
-                assert.deepStrictEqual(quotedString.afterEndIndex, startIndex + expectedLength);
-                assert.deepStrictEqual(quotedString.span, new qub.Span(startIndex, expectedLength));
+                assert.deepEqual(quotedString.startIndex, startIndex);
+                assert.deepEqual(quotedString.getLength(), expectedLength);
+                assert.deepEqual(quotedString.afterEndIndex, startIndex + expectedLength);
+                assert.deepEqual(quotedString.span, new qub.Span(startIndex, expectedLength));
 
-                assert.deepStrictEqual(quotedString.startQuote, quotedStringLexes && quotedStringLexes.any() ? quotedStringLexes.first() : undefined, "Wrong startQuote.");
-                assert.deepStrictEqual(quotedString.hasEndQuote(), quotedStringLexes && quotedStringLexes.getCount() > 1 && quotedStringLexes.first().getType() === quotedStringLexes.last().getType(), "Wrong hasEndQuote().");
+                assert.deepEqual(quotedString.startQuote, quotedStringLexes && quotedStringLexes.any() ? quotedStringLexes.first() : undefined, "Wrong startQuote.");
+                assert.deepEqual(quotedString.hasEndQuote(), quotedStringLexes && quotedStringLexes.getCount() > 1 && quotedStringLexes.first().getType() === quotedStringLexes.last().getType(), "Wrong hasEndQuote().");
 
-                assert.deepStrictEqual(quotedString.toString(), expectedString);
+                assert.deepEqual(quotedString.toString(), expectedString);
                 const context = new xml.FormatContext();
-                assert.deepStrictEqual(quotedString.format(context), expectedString);
-                assert.deepStrictEqual(context.currentColumnIndex, quotedString.getLength());
+                assert.deepEqual(quotedString.format(context), expectedString);
+                assert.deepEqual(context.currentColumnIndex, quotedString.getLength());
 
                 for (let i = startIndex - 1; i <= quotedString.afterEndIndex + 1; ++i) {
-                    assert.deepStrictEqual(quotedString.containsIndex(i), startIndex < i && (!quotedString.hasEndQuote() || i < quotedString.afterEndIndex), `Wrong containsIndex() at index ${i}.`);
+                    assert.deepEqual(quotedString.containsIndex(i), startIndex < i && (!quotedString.hasEndQuote() || i < quotedString.afterEndIndex), `Wrong containsIndex() at index ${i}.`);
                 }
 
                 let unquotedStringLexes: qub.Iterable<xml.Lex> = quotedStringLexes.skip(1);
                 if (quotedString.hasEndQuote()) {
                     unquotedStringLexes = unquotedStringLexes.skipLast(1);
                 }
-                assert.deepStrictEqual(quotedString.unquotedLexes.toArray(), unquotedStringLexes.toArray());
-                assert.deepStrictEqual(quotedString.unquotedString, qub.getCombinedText(unquotedStringLexes));
+                assert.deepEqual(quotedString.unquotedLexes.toArray(), unquotedStringLexes.toArray());
+                assert.deepEqual(quotedString.unquotedString, qub.getCombinedText(unquotedStringLexes));
             });
         }
 
-        quotedStringTest(parseLexes(`"`));
-        quotedStringTest(parseLexes(`""`));
-        quotedStringTest(parseLexes(`"abc"`));
-        quotedStringTest(parseLexes(`'`));
-        quotedStringTest(parseLexes(`''`));
-        quotedStringTest(parseLexes(`'abc'`));
+        quotedStringTest(parseXmlLexes(`"`));
+        quotedStringTest(parseXmlLexes(`""`));
+        quotedStringTest(parseXmlLexes(`"abc"`));
+        quotedStringTest(parseXmlLexes(`'`));
+        quotedStringTest(parseXmlLexes(`''`));
+        quotedStringTest(parseXmlLexes(`'abc'`));
     });
 
     suite("Attribute", () => {
@@ -539,28 +721,28 @@ suite("XML", () => {
             basicSegmentTests(attribute, 99, "hello");
 
             const context = new xml.FormatContext();
-            assert.deepStrictEqual(attribute.format(context), "hello");
-            assert.deepStrictEqual(context.currentColumnIndex, attribute.getLength());
+            assert.deepEqual(attribute.format(context), "hello");
+            assert.deepEqual(context.currentColumnIndex, attribute.getLength());
 
             testContainsIndex(attribute, (index: number) => { return attribute.startIndex <= index && index <= attribute.afterEndIndex; });
 
-            assert.deepStrictEqual(attribute.name, parseName("hello", 99), "Wrong name.");
-            assert.deepStrictEqual(attribute.equals, undefined, "Wrong equals sign.");
-            assert.deepStrictEqual(attribute.value, undefined, "Wrong value.");
+            assert.deepEqual(attribute.name, parseName("hello", 99), "Wrong name.");
+            assert.deepEqual(attribute.equals, undefined, "Wrong equals sign.");
+            assert.deepEqual(attribute.value, undefined, "Wrong value.");
         });
 
         test("with name and whitespace", () => {
             const attribute = new xml.Attribute(new qub.ArrayList([parseName("hello", 99), parseWhitespace("  ", 104)]));
             basicSegmentTests(attribute, 99, "hello  ");
             const context = new xml.FormatContext();
-            assert.deepStrictEqual(attribute.format(context), "hello");
-            assert.deepStrictEqual(context.currentColumnIndex, 5);
+            assert.deepEqual(attribute.format(context), "hello");
+            assert.deepEqual(context.currentColumnIndex, 5);
 
             testContainsIndex(attribute, (index: number) => { return attribute.startIndex <= index && index <= attribute.name.afterEndIndex; });
 
-            assert.deepStrictEqual(attribute.name, parseName("hello", 99));
-            assert.deepStrictEqual(attribute.equals, undefined);
-            assert.deepStrictEqual(attribute.value, undefined);
+            assert.deepEqual(attribute.name, parseName("hello", 99));
+            assert.deepEqual(attribute.equals, undefined);
+            assert.deepEqual(attribute.value, undefined);
         });
 
         test("with name, equals, and value", () => {
@@ -572,14 +754,14 @@ suite("XML", () => {
             ]));
             basicSegmentTests(attribute, 15, `Project=\t"test`);
             const context = new xml.FormatContext();
-            assert.deepStrictEqual(attribute.format(context), `Project="test`);
-            assert.deepStrictEqual(context.currentColumnIndex, 13);
+            assert.deepEqual(attribute.format(context), `Project="test`);
+            assert.deepEqual(context.currentColumnIndex, 13);
 
             testContainsIndex(attribute, (index: number) => { return attribute.startIndex <= index; });
 
-            assert.deepStrictEqual(attribute.name, parseName("Project", 15));
-            assert.deepStrictEqual(attribute.equals, xml.Equals(22));
-            assert.deepStrictEqual(attribute.value, parseQuotedString(`"test`, 24));
+            assert.deepEqual(attribute.name, parseName("Project", 15));
+            assert.deepEqual(attribute.equals, xml.Equals(22));
+            assert.deepEqual(attribute.value, parseQuotedString(`"test`, 24));
         });
 
         test("with equals and value", () => {
@@ -589,14 +771,14 @@ suite("XML", () => {
             ]));
             basicSegmentTests(attribute, 22, `="pear "`);
             const context = new xml.FormatContext();
-            assert.deepStrictEqual(attribute.format(context), `="pear "`);
-            assert.deepStrictEqual(context.currentColumnIndex, attribute.getLength());
+            assert.deepEqual(attribute.format(context), `="pear "`);
+            assert.deepEqual(context.currentColumnIndex, attribute.getLength());
 
             testContainsIndex(attribute, (index: number) => { return attribute.startIndex <= index && index < attribute.afterEndIndex; });
 
-            assert.deepStrictEqual(attribute.name, undefined);
-            assert.deepStrictEqual(attribute.equals, xml.Equals(22));
-            assert.deepStrictEqual(attribute.value, parseQuotedString(`"pear "`, 23));
+            assert.deepEqual(attribute.name, undefined);
+            assert.deepEqual(attribute.equals, xml.Equals(22));
+            assert.deepEqual(attribute.value, parseQuotedString(`"pear "`, 23));
         });
     });
 
@@ -605,51 +787,63 @@ suite("XML", () => {
             const declaration = new xml.Declaration(new qub.ArrayList([xml.LeftAngleBracket(5), xml.QuestionMark(6)]));
             basicSegmentTests(declaration, 5, "<?");
             const context = new xml.FormatContext();
-            assert.deepStrictEqual(declaration.format(context), "<?");
-            assert.deepStrictEqual(context.currentColumnIndex, declaration.getLength());
+            assert.deepEqual(declaration.format(context), "<?");
+            assert.deepEqual(context.currentColumnIndex, declaration.getLength());
 
-            assert.deepStrictEqual(declaration.leftAngleBracket, xml.LeftAngleBracket(5), "Wrong leftAngleBracket.");
-            assert.deepStrictEqual(declaration.leftQuestionMark, xml.QuestionMark(6), "Wrong leftQuestionMark.");
-            assert.deepStrictEqual(declaration.getName(), undefined, "Wrong name.");
-            assert.deepStrictEqual(declaration.attributes.toArray(), [], "Wrong attributes.");
-            assert.deepStrictEqual(declaration.rightQuestionMark, undefined, "Wrong rightQuestionMark.");
-            assert.deepStrictEqual(declaration.getRightAngleBracket(), undefined, "Wrong rightAngleBracket.");
+            assert.deepEqual(declaration.leftAngleBracket, xml.LeftAngleBracket(5), "Wrong leftAngleBracket.");
+            assert.deepEqual(declaration.leftQuestionMark, xml.QuestionMark(6), "Wrong leftQuestionMark.");
+            assert.deepEqual(declaration.getName(), undefined, "Wrong name.");
+            assert.deepEqual(declaration.attributes.toArray(), [], "Wrong attributes.");
+            assert.deepEqual(declaration.rightQuestionMark, undefined, "Wrong rightQuestionMark.");
+            assert.deepEqual(declaration.getRightAngleBracket(), undefined, "Wrong rightAngleBracket.");
 
             testContainsIndex(declaration, (index: number) => { return declaration.startIndex < index; });
+
+            assert.deepEqual(declaration.version, undefined);
+            assert.deepEqual(declaration.encoding, undefined);
+            assert.deepEqual(declaration.standalone, undefined);
         });
 
         test(`with "<?3"`, () => {
             const declaration = new xml.Declaration(new qub.ArrayList([xml.LeftAngleBracket(5), xml.QuestionMark(6), parseUnrecognized("3", 7)]));
             basicSegmentTests(declaration, 5, "<?3");
             const context = new xml.FormatContext();
-            assert.deepStrictEqual(declaration.format(context), "<?3");
-            assert.deepStrictEqual(context.currentColumnIndex, declaration.getLength());
+            assert.deepEqual(declaration.format(context), "<?3");
+            assert.deepEqual(context.currentColumnIndex, declaration.getLength());
 
-            assert.deepStrictEqual(declaration.leftAngleBracket, xml.LeftAngleBracket(5));
-            assert.deepStrictEqual(declaration.leftQuestionMark, xml.QuestionMark(6));
-            assert.deepStrictEqual(declaration.getName(), undefined);
-            assert.deepStrictEqual(declaration.attributes.toArray(), []);
-            assert.deepStrictEqual(declaration.rightQuestionMark, undefined);
-            assert.deepStrictEqual(declaration.getRightAngleBracket(), undefined);
+            assert.deepEqual(declaration.leftAngleBracket, xml.LeftAngleBracket(5));
+            assert.deepEqual(declaration.leftQuestionMark, xml.QuestionMark(6));
+            assert.deepEqual(declaration.getName(), undefined);
+            assert.deepEqual(declaration.attributes.toArray(), []);
+            assert.deepEqual(declaration.rightQuestionMark, undefined);
+            assert.deepEqual(declaration.getRightAngleBracket(), undefined);
 
             testContainsIndex(declaration, (index: number) => { return declaration.startIndex < index; });
+
+            assert.deepEqual(declaration.version, undefined);
+            assert.deepEqual(declaration.encoding, undefined);
+            assert.deepEqual(declaration.standalone, undefined);
         });
 
         test(`with "<?xml?>"`, () => {
             const declaration = new xml.Declaration(new qub.ArrayList([xml.LeftAngleBracket(5), xml.QuestionMark(6), parseName("xml", 7), xml.QuestionMark(10), xml.RightAngleBracket(11)]));
             basicSegmentTests(declaration, 5, "<?xml?>");
             const context = new xml.FormatContext();
-            assert.deepStrictEqual(declaration.format(context), "<?xml?>");
-            assert.deepStrictEqual(context.currentColumnIndex, declaration.getLength());
+            assert.deepEqual(declaration.format(context), "<?xml?>");
+            assert.deepEqual(context.currentColumnIndex, declaration.getLength());
 
-            assert.deepStrictEqual(declaration.leftAngleBracket, xml.LeftAngleBracket(5));
-            assert.deepStrictEqual(declaration.leftQuestionMark, xml.QuestionMark(6));
-            assert.deepStrictEqual(declaration.getName(), parseName("xml", 7));
-            assert.deepStrictEqual(declaration.attributes.toArray(), []);
-            assert.deepStrictEqual(declaration.rightQuestionMark, xml.QuestionMark(10));
-            assert.deepStrictEqual(declaration.getRightAngleBracket(), xml.RightAngleBracket(11));
+            assert.deepEqual(declaration.leftAngleBracket, xml.LeftAngleBracket(5));
+            assert.deepEqual(declaration.leftQuestionMark, xml.QuestionMark(6));
+            assert.deepEqual(declaration.getName(), parseName("xml", 7));
+            assert.deepEqual(declaration.attributes.toArray(), []);
+            assert.deepEqual(declaration.rightQuestionMark, xml.QuestionMark(10));
+            assert.deepEqual(declaration.getRightAngleBracket(), xml.RightAngleBracket(11));
 
             testContainsIndex(declaration, (index: number) => { return declaration.startIndex < index && index < declaration.afterEndIndex; });
+
+            assert.deepEqual(declaration.version, undefined);
+            assert.deepEqual(declaration.encoding, undefined);
+            assert.deepEqual(declaration.standalone, undefined);
         });
 
         test(`with "<?xml  ?>"`, () => {
@@ -662,17 +856,21 @@ suite("XML", () => {
                 xml.RightAngleBracket(13)]));
             basicSegmentTests(declaration, 5, "<?xml  ?>");
             const context = new xml.FormatContext();
-            assert.deepStrictEqual(declaration.format(context), "<?xml ?>");
-            assert.deepStrictEqual(context.currentColumnIndex, 8);
+            assert.deepEqual(declaration.format(context), "<?xml ?>");
+            assert.deepEqual(context.currentColumnIndex, 8);
 
-            assert.deepStrictEqual(declaration.leftAngleBracket, xml.LeftAngleBracket(5));
-            assert.deepStrictEqual(declaration.leftQuestionMark, xml.QuestionMark(6));
-            assert.deepStrictEqual(declaration.getName(), parseName("xml", 7));
-            assert.deepStrictEqual(declaration.attributes.toArray(), []);
-            assert.deepStrictEqual(declaration.rightQuestionMark, xml.QuestionMark(12));
-            assert.deepStrictEqual(declaration.getRightAngleBracket(), xml.RightAngleBracket(13));
+            assert.deepEqual(declaration.leftAngleBracket, xml.LeftAngleBracket(5));
+            assert.deepEqual(declaration.leftQuestionMark, xml.QuestionMark(6));
+            assert.deepEqual(declaration.getName(), parseName("xml", 7));
+            assert.deepEqual(declaration.attributes.toArray(), []);
+            assert.deepEqual(declaration.rightQuestionMark, xml.QuestionMark(12));
+            assert.deepEqual(declaration.getRightAngleBracket(), xml.RightAngleBracket(13));
 
             testContainsIndex(declaration, (index: number) => { return declaration.startIndex < index && index < declaration.afterEndIndex; });
+
+            assert.deepEqual(declaration.version, undefined);
+            assert.deepEqual(declaration.encoding, undefined);
+            assert.deepEqual(declaration.standalone, undefined);
         });
 
         test(`with "<?xml version="1.0" ?>"`, () => {
@@ -687,17 +885,21 @@ suite("XML", () => {
                 xml.RightAngleBracket(26)]));
             basicSegmentTests(declaration, 5, `<?xml version="1.0" ?>`);
             const context = new xml.FormatContext();
-            assert.deepStrictEqual(declaration.format(context), `<?xml version="1.0" ?>`);
-            assert.deepStrictEqual(context.currentColumnIndex, declaration.getLength());
+            assert.deepEqual(declaration.format(context), `<?xml version="1.0" ?>`);
+            assert.deepEqual(context.currentColumnIndex, declaration.getLength());
 
-            assert.deepStrictEqual(declaration.leftAngleBracket, xml.LeftAngleBracket(5));
-            assert.deepStrictEqual(declaration.leftQuestionMark, xml.QuestionMark(6));
-            assert.deepStrictEqual(declaration.getName(), parseName("xml", 7));
-            assert.deepStrictEqual(declaration.attributes.toArray(), [parseAttribute(`version="1.0"`, 11)]);
-            assert.deepStrictEqual(declaration.rightQuestionMark, xml.QuestionMark(25));
-            assert.deepStrictEqual(declaration.getRightAngleBracket(), xml.RightAngleBracket(26));
+            assert.deepEqual(declaration.leftAngleBracket, xml.LeftAngleBracket(5));
+            assert.deepEqual(declaration.leftQuestionMark, xml.QuestionMark(6));
+            assert.deepEqual(declaration.getName(), parseName("xml", 7));
+            assert.deepEqual(declaration.attributes.toArray(), [parseAttribute(`version="1.0"`, 11)]);
+            assert.deepEqual(declaration.rightQuestionMark, xml.QuestionMark(25));
+            assert.deepEqual(declaration.getRightAngleBracket(), xml.RightAngleBracket(26));
 
             testContainsIndex(declaration, (index: number) => { return declaration.startIndex < index && index < declaration.afterEndIndex; });
+
+            assert.deepEqual(declaration.version, parseAttribute(`version="1.0"`, 11));
+            assert.deepEqual(declaration.encoding, undefined);
+            assert.deepEqual(declaration.standalone, undefined);
         });
 
         test(`with "<?xml  = 'b' ?>"`, () => {
@@ -715,17 +917,21 @@ suite("XML", () => {
             ]));
             basicSegmentTests(declaration, 0, `<?xml  = 'b' ?>`);
             const context = new xml.FormatContext();
-            assert.deepStrictEqual(declaration.format(context), `<?xml = 'b' ?>`);
-            assert.deepStrictEqual(context.currentColumnIndex, 14);
+            assert.deepEqual(declaration.format(context), `<?xml = 'b' ?>`);
+            assert.deepEqual(context.currentColumnIndex, 14);
 
-            assert.deepStrictEqual(declaration.leftAngleBracket, xml.LeftAngleBracket(0));
-            assert.deepStrictEqual(declaration.leftQuestionMark, xml.QuestionMark(1));
-            assert.deepStrictEqual(declaration.getName(), parseName("xml", 2));
-            assert.deepStrictEqual(declaration.attributes.toArray(), []);
-            assert.deepStrictEqual(declaration.rightQuestionMark, xml.QuestionMark(13));
-            assert.deepStrictEqual(declaration.getRightAngleBracket(), xml.RightAngleBracket(14));
+            assert.deepEqual(declaration.leftAngleBracket, xml.LeftAngleBracket(0));
+            assert.deepEqual(declaration.leftQuestionMark, xml.QuestionMark(1));
+            assert.deepEqual(declaration.getName(), parseName("xml", 2));
+            assert.deepEqual(declaration.attributes.toArray(), []);
+            assert.deepEqual(declaration.rightQuestionMark, xml.QuestionMark(13));
+            assert.deepEqual(declaration.getRightAngleBracket(), xml.RightAngleBracket(14));
 
             testContainsIndex(declaration, (index: number) => { return declaration.startIndex < index && index < declaration.afterEndIndex; });
+
+            assert.deepEqual(declaration.version, undefined);
+            assert.deepEqual(declaration.encoding, undefined);
+            assert.deepEqual(declaration.standalone, undefined);
         });
 
         test(`with "<?xml  a = 'b'  ?>"`, () => {
@@ -741,17 +947,59 @@ suite("XML", () => {
             ]));
             basicSegmentTests(declaration, 0, `<?xml  a = 'b'  ?>`);
             const context = new xml.FormatContext();
-            assert.deepStrictEqual(declaration.format(context), `<?xml a='b' ?>`);
-            assert.deepStrictEqual(context.currentColumnIndex, 14);
+            assert.deepEqual(declaration.format(context), `<?xml a='b' ?>`);
+            assert.deepEqual(context.currentColumnIndex, 14);
 
-            assert.deepStrictEqual(declaration.leftAngleBracket, xml.LeftAngleBracket(0));
-            assert.deepStrictEqual(declaration.leftQuestionMark, xml.QuestionMark(1));
-            assert.deepStrictEqual(declaration.getName(), parseName("xml", 2));
-            assert.deepStrictEqual(declaration.attributes.toArray(), [parseAttribute(`a = 'b'`, 7)]);
-            assert.deepStrictEqual(declaration.rightQuestionMark, xml.QuestionMark(16));
-            assert.deepStrictEqual(declaration.getRightAngleBracket(), xml.RightAngleBracket(17));
+            assert.deepEqual(declaration.leftAngleBracket, xml.LeftAngleBracket(0));
+            assert.deepEqual(declaration.leftQuestionMark, xml.QuestionMark(1));
+            assert.deepEqual(declaration.getName(), parseName("xml", 2));
+            assert.deepEqual(declaration.attributes.toArray(), [parseAttribute(`a = 'b'`, 7)]);
+            assert.deepEqual(declaration.rightQuestionMark, xml.QuestionMark(16));
+            assert.deepEqual(declaration.getRightAngleBracket(), xml.RightAngleBracket(17));
 
             testContainsIndex(declaration, (index: number) => { return declaration.startIndex < index && index < declaration.afterEndIndex; });
+
+            assert.deepEqual(declaration.version, undefined);
+            assert.deepEqual(declaration.encoding, undefined);
+            assert.deepEqual(declaration.standalone, undefined);
+        });
+
+        test(`with "<?xml version="1.0" encoding="utf-8" standalone="yes" ?>"`, () => {
+            const declaration = new xml.Declaration(new qub.ArrayList([
+                xml.LeftAngleBracket(0),
+                xml.QuestionMark(1),
+                parseName("xml", 2),
+                parseWhitespace(" ", 5),
+                parseAttribute(`version="1.0"`, 6),
+                parseWhitespace(" ", 19),
+                parseAttribute(`encoding="utf-8"`, 20),
+                parseWhitespace(" ", 36),
+                parseAttribute(`standalone="yes"`, 37),
+                parseWhitespace(" ", 53),
+                xml.QuestionMark(54),
+                xml.RightAngleBracket(55)
+            ]));
+            basicSegmentTests(declaration, 0, `<?xml version="1.0" encoding="utf-8" standalone="yes" ?>`);
+            const context = new xml.FormatContext();
+            assert.deepEqual(declaration.format(context), `<?xml version="1.0" encoding="utf-8" standalone="yes" ?>`);
+            assert.deepEqual(context.currentColumnIndex, 56);
+
+            assert.deepEqual(declaration.leftAngleBracket, xml.LeftAngleBracket(0));
+            assert.deepEqual(declaration.leftQuestionMark, xml.QuestionMark(1));
+            assert.deepEqual(declaration.getName(), parseName("xml", 2));
+            assert.deepEqual(declaration.attributes.toArray(), [
+                parseAttribute(`version="1.0"`, 6),
+                parseAttribute(`encoding="utf-8"`, 20),
+                parseAttribute(`standalone="yes"`, 37)
+            ]);
+            assert.deepEqual(declaration.rightQuestionMark, xml.QuestionMark(54));
+            assert.deepEqual(declaration.getRightAngleBracket(), xml.RightAngleBracket(55));
+
+            testContainsIndex(declaration, (index: number) => { return declaration.startIndex < index && index < declaration.afterEndIndex; });
+
+            assert.deepEqual(declaration.version, parseAttribute(`version="1.0"`, 6));
+            assert.deepEqual(declaration.encoding, parseAttribute(`encoding="utf-8"`, 20));
+            assert.deepEqual(declaration.standalone, parseAttribute(`standalone="yes"`, 37));
         });
     });
 
@@ -760,13 +1008,13 @@ suite("XML", () => {
             const startTag = new xml.StartTag(new qub.ArrayList([xml.LeftAngleBracket(0), parseName("a", 1)]));
             basicSegmentTests(startTag, 0, "<a");
             const context = new xml.FormatContext();
-            assert.deepStrictEqual(startTag.format(context), "<a");
-            assert.deepStrictEqual(context.currentColumnIndex, startTag.getLength());
+            assert.deepEqual(startTag.format(context), "<a");
+            assert.deepEqual(context.currentColumnIndex, startTag.getLength());
 
-            assert.deepStrictEqual(startTag.leftAngleBracket, xml.LeftAngleBracket(0));
-            assert.deepStrictEqual(startTag.getName(), parseName("a", 1));
-            assert.deepStrictEqual(startTag.attributes.toArray(), []);
-            assert.deepStrictEqual(startTag.getRightAngleBracket(), undefined);
+            assert.deepEqual(startTag.leftAngleBracket, xml.LeftAngleBracket(0));
+            assert.deepEqual(startTag.getName(), parseName("a", 1));
+            assert.deepEqual(startTag.attributes.toArray(), []);
+            assert.deepEqual(startTag.getRightAngleBracket(), undefined);
 
             testContainsIndex(startTag, (index: number) => { return startTag.startIndex < index; });
         });
@@ -775,13 +1023,13 @@ suite("XML", () => {
             const startTag = new xml.StartTag(new qub.ArrayList([xml.LeftAngleBracket(0), parseName("a", 1), xml.RightAngleBracket(2)]));
             basicSegmentTests(startTag, 0, "<a>");
             const context = new xml.FormatContext();
-            assert.deepStrictEqual(startTag.format(context), "<a>");
-            assert.deepStrictEqual(context.currentColumnIndex, startTag.getLength());
+            assert.deepEqual(startTag.format(context), "<a>");
+            assert.deepEqual(context.currentColumnIndex, startTag.getLength());
 
-            assert.deepStrictEqual(startTag.leftAngleBracket, xml.LeftAngleBracket(0));
-            assert.deepStrictEqual(startTag.getName(), parseName("a", 1));
-            assert.deepStrictEqual(startTag.attributes.toArray(), []);
-            assert.deepStrictEqual(startTag.getRightAngleBracket(), xml.RightAngleBracket(2));
+            assert.deepEqual(startTag.leftAngleBracket, xml.LeftAngleBracket(0));
+            assert.deepEqual(startTag.getName(), parseName("a", 1));
+            assert.deepEqual(startTag.attributes.toArray(), []);
+            assert.deepEqual(startTag.getRightAngleBracket(), xml.RightAngleBracket(2));
 
             testContainsIndex(startTag, (index: number) => { return startTag.startIndex < index && index < startTag.afterEndIndex; });
         });
@@ -790,13 +1038,13 @@ suite("XML", () => {
             const startTag = new xml.StartTag(new qub.ArrayList([xml.LeftAngleBracket(0), parseName("a", 1), parseWhitespace("  ", 2), xml.RightAngleBracket(4)]));
             basicSegmentTests(startTag, 0, "<a  >");
             const context = new xml.FormatContext();
-            assert.deepStrictEqual(startTag.format(context), "<a>");
-            assert.deepStrictEqual(context.currentColumnIndex, 3);
+            assert.deepEqual(startTag.format(context), "<a>");
+            assert.deepEqual(context.currentColumnIndex, 3);
 
-            assert.deepStrictEqual(startTag.leftAngleBracket, xml.LeftAngleBracket(0));
-            assert.deepStrictEqual(startTag.getName(), parseName("a", 1));
-            assert.deepStrictEqual(startTag.attributes.toArray(), []);
-            assert.deepStrictEqual(startTag.getRightAngleBracket(), xml.RightAngleBracket(4));
+            assert.deepEqual(startTag.leftAngleBracket, xml.LeftAngleBracket(0));
+            assert.deepEqual(startTag.getName(), parseName("a", 1));
+            assert.deepEqual(startTag.attributes.toArray(), []);
+            assert.deepEqual(startTag.getRightAngleBracket(), xml.RightAngleBracket(4));
 
             testContainsIndex(startTag, (index: number) => { return startTag.startIndex < index && index < startTag.afterEndIndex; });
         });
@@ -810,13 +1058,13 @@ suite("XML", () => {
                 xml.RightAngleBracket(8)]));
             basicSegmentTests(startTag, 0, `<a b="c">`);
             const context = new xml.FormatContext();
-            assert.deepStrictEqual(startTag.format(context), `<a b="c">`);
-            assert.deepStrictEqual(context.currentColumnIndex, startTag.getLength());
+            assert.deepEqual(startTag.format(context), `<a b="c">`);
+            assert.deepEqual(context.currentColumnIndex, startTag.getLength());
 
-            assert.deepStrictEqual(startTag.leftAngleBracket, xml.LeftAngleBracket(0));
-            assert.deepStrictEqual(startTag.getName(), parseName("a", 1));
-            assert.deepStrictEqual(startTag.attributes.toArray(), [parseAttribute(`b="c"`, 3)]);
-            assert.deepStrictEqual(startTag.getRightAngleBracket(), xml.RightAngleBracket(8));
+            assert.deepEqual(startTag.leftAngleBracket, xml.LeftAngleBracket(0));
+            assert.deepEqual(startTag.getName(), parseName("a", 1));
+            assert.deepEqual(startTag.attributes.toArray(), [parseAttribute(`b="c"`, 3)]);
+            assert.deepEqual(startTag.getRightAngleBracket(), xml.RightAngleBracket(8));
 
             testContainsIndex(startTag, (index: number) => { return startTag.startIndex < index && index < startTag.afterEndIndex; });
         });
@@ -831,13 +1079,13 @@ suite("XML", () => {
                 xml.RightAngleBracket(13)]));
             basicSegmentTests(startTag, 0, `<a  b =  "c" >`);
             const context = new xml.FormatContext();
-            assert.deepStrictEqual(startTag.format(context), `<a b="c">`);
-            assert.deepStrictEqual(context.currentColumnIndex, 9);
+            assert.deepEqual(startTag.format(context), `<a b="c">`);
+            assert.deepEqual(context.currentColumnIndex, 9);
 
-            assert.deepStrictEqual(startTag.leftAngleBracket, xml.LeftAngleBracket(0));
-            assert.deepStrictEqual(startTag.getName(), parseName("a", 1));
-            assert.deepStrictEqual(startTag.attributes.toArray(), [parseAttribute(`b =  "c"`, 4)]);
-            assert.deepStrictEqual(startTag.getRightAngleBracket(), xml.RightAngleBracket(13));
+            assert.deepEqual(startTag.leftAngleBracket, xml.LeftAngleBracket(0));
+            assert.deepEqual(startTag.getName(), parseName("a", 1));
+            assert.deepEqual(startTag.attributes.toArray(), [parseAttribute(`b =  "c"`, 4)]);
+            assert.deepEqual(startTag.getRightAngleBracket(), xml.RightAngleBracket(13));
 
             testContainsIndex(startTag, (index: number) => { return startTag.startIndex < index && index < startTag.afterEndIndex; });
         });
@@ -852,13 +1100,13 @@ suite("XML", () => {
                 xml.RightAngleBracket(11)]));
             basicSegmentTests(startTag, 0, `<a\nb\n=\n"c"\n>`);
             const context = new xml.FormatContext();
-            assert.deepStrictEqual(startTag.format(context), `<a\n  b\n  =\n  "c"\n  >`, "Wrong format()");
-            assert.deepStrictEqual(context.currentColumnIndex, 3);
+            assert.deepEqual(startTag.format(context), `<a\n  b\n  =\n  "c"\n  >`, "Wrong format()");
+            assert.deepEqual(context.currentColumnIndex, 3);
 
-            assert.deepStrictEqual(startTag.leftAngleBracket, xml.LeftAngleBracket(0));
-            assert.deepStrictEqual(startTag.getName(), parseName("a", 1));
-            assert.deepStrictEqual(startTag.attributes.toArray(), [parseAttribute(`b\n=\n"c"`, 3)]);
-            assert.deepStrictEqual(startTag.getRightAngleBracket(), xml.RightAngleBracket(11));
+            assert.deepEqual(startTag.leftAngleBracket, xml.LeftAngleBracket(0));
+            assert.deepEqual(startTag.getName(), parseName("a", 1));
+            assert.deepEqual(startTag.attributes.toArray(), [parseAttribute(`b\n=\n"c"`, 3)]);
+            assert.deepEqual(startTag.getRightAngleBracket(), xml.RightAngleBracket(11));
 
             testContainsIndex(startTag, (index: number) => { return startTag.startIndex < index && index < startTag.afterEndIndex; });
         });
@@ -869,13 +1117,13 @@ suite("XML", () => {
             const endTag = new xml.EndTag(new qub.ArrayList([xml.LeftAngleBracket(0), xml.ForwardSlash(1)]));
             basicSegmentTests(endTag, 0, "</");
             const context = new xml.FormatContext();
-            assert.deepStrictEqual(endTag.format(context), "</");
-            assert.deepStrictEqual(context.currentColumnIndex, endTag.getLength());
+            assert.deepEqual(endTag.format(context), "</");
+            assert.deepEqual(context.currentColumnIndex, endTag.getLength());
 
-            assert.deepStrictEqual(endTag.leftAngleBracket, xml.LeftAngleBracket(0));
-            assert.deepStrictEqual(endTag.forwardSlash, xml.ForwardSlash(1));
-            assert.deepStrictEqual(endTag.name, undefined);
-            assert.deepStrictEqual(endTag.getRightAngleBracket(), undefined);
+            assert.deepEqual(endTag.leftAngleBracket, xml.LeftAngleBracket(0));
+            assert.deepEqual(endTag.forwardSlash, xml.ForwardSlash(1));
+            assert.deepEqual(endTag.name, undefined);
+            assert.deepEqual(endTag.getRightAngleBracket(), undefined);
 
             testContainsIndex(endTag, (index: number) => { return endTag.startIndex < index; });
         });
@@ -884,13 +1132,13 @@ suite("XML", () => {
             const endTag = new xml.EndTag(new qub.ArrayList([xml.LeftAngleBracket(0), xml.ForwardSlash(1), parseUnrecognized(")", 2)]));
             basicSegmentTests(endTag, 0, "</)");
             const context = new xml.FormatContext();
-            assert.deepStrictEqual(endTag.format(context), "</)");
-            assert.deepStrictEqual(context.currentColumnIndex, endTag.getLength());
+            assert.deepEqual(endTag.format(context), "</)");
+            assert.deepEqual(context.currentColumnIndex, endTag.getLength());
 
-            assert.deepStrictEqual(endTag.leftAngleBracket, xml.LeftAngleBracket(0));
-            assert.deepStrictEqual(endTag.forwardSlash, xml.ForwardSlash(1));
-            assert.deepStrictEqual(endTag.name, undefined);
-            assert.deepStrictEqual(endTag.getRightAngleBracket(), undefined);
+            assert.deepEqual(endTag.leftAngleBracket, xml.LeftAngleBracket(0));
+            assert.deepEqual(endTag.forwardSlash, xml.ForwardSlash(1));
+            assert.deepEqual(endTag.name, undefined);
+            assert.deepEqual(endTag.getRightAngleBracket(), undefined);
 
             testContainsIndex(endTag, (index: number) => { return endTag.startIndex < index; });
         });
@@ -899,13 +1147,13 @@ suite("XML", () => {
             const endTag = new xml.EndTag(new qub.ArrayList([xml.LeftAngleBracket(0), xml.ForwardSlash(1), parseName("a", 2)]));
             basicSegmentTests(endTag, 0, "</a");
             const context = new xml.FormatContext();
-            assert.deepStrictEqual(endTag.format(context), "</a");
-            assert.deepStrictEqual(context.currentColumnIndex, endTag.getLength());
+            assert.deepEqual(endTag.format(context), "</a");
+            assert.deepEqual(context.currentColumnIndex, endTag.getLength());
 
-            assert.deepStrictEqual(endTag.leftAngleBracket, xml.LeftAngleBracket(0));
-            assert.deepStrictEqual(endTag.forwardSlash, xml.ForwardSlash(1));
-            assert.deepStrictEqual(endTag.name, parseName("a", 2));
-            assert.deepStrictEqual(endTag.getRightAngleBracket(), undefined);
+            assert.deepEqual(endTag.leftAngleBracket, xml.LeftAngleBracket(0));
+            assert.deepEqual(endTag.forwardSlash, xml.ForwardSlash(1));
+            assert.deepEqual(endTag.name, parseName("a", 2));
+            assert.deepEqual(endTag.getRightAngleBracket(), undefined);
 
             testContainsIndex(endTag, (index: number) => { return endTag.startIndex < index; });
         });
@@ -918,13 +1166,13 @@ suite("XML", () => {
                 xml.RightAngleBracket(3)]));
             basicSegmentTests(endTag, 0, `</a>`);
             const context = new xml.FormatContext();
-            assert.deepStrictEqual(endTag.format(context), `</a>`);
-            assert.deepStrictEqual(context.currentColumnIndex, endTag.getLength());
+            assert.deepEqual(endTag.format(context), `</a>`);
+            assert.deepEqual(context.currentColumnIndex, endTag.getLength());
 
-            assert.deepStrictEqual(endTag.leftAngleBracket, xml.LeftAngleBracket(0));
-            assert.deepStrictEqual(endTag.forwardSlash, xml.ForwardSlash(1));
-            assert.deepStrictEqual(endTag.name, parseName("a", 2));
-            assert.deepStrictEqual(endTag.getRightAngleBracket(), xml.RightAngleBracket(3));
+            assert.deepEqual(endTag.leftAngleBracket, xml.LeftAngleBracket(0));
+            assert.deepEqual(endTag.forwardSlash, xml.ForwardSlash(1));
+            assert.deepEqual(endTag.name, parseName("a", 2));
+            assert.deepEqual(endTag.getRightAngleBracket(), xml.RightAngleBracket(3));
 
             testContainsIndex(endTag, (index: number) => { return endTag.startIndex < index && index < endTag.afterEndIndex; });
         });
@@ -938,13 +1186,13 @@ suite("XML", () => {
                 xml.RightAngleBracket(4)]));
             basicSegmentTests(endTag, 0, `</ a>`);
             const context = new xml.FormatContext();
-            assert.deepStrictEqual(endTag.format(context), `</ a>`);
-            assert.deepStrictEqual(context.currentColumnIndex, endTag.getLength());
+            assert.deepEqual(endTag.format(context), `</ a>`);
+            assert.deepEqual(context.currentColumnIndex, endTag.getLength());
 
-            assert.deepStrictEqual(endTag.leftAngleBracket, xml.LeftAngleBracket(0));
-            assert.deepStrictEqual(endTag.forwardSlash, xml.ForwardSlash(1));
-            assert.deepStrictEqual(endTag.name, undefined);
-            assert.deepStrictEqual(endTag.getRightAngleBracket(), xml.RightAngleBracket(4));
+            assert.deepEqual(endTag.leftAngleBracket, xml.LeftAngleBracket(0));
+            assert.deepEqual(endTag.forwardSlash, xml.ForwardSlash(1));
+            assert.deepEqual(endTag.name, undefined);
+            assert.deepEqual(endTag.getRightAngleBracket(), xml.RightAngleBracket(4));
 
             testContainsIndex(endTag, (index: number) => { return endTag.startIndex < index && index < endTag.afterEndIndex; });
         });
@@ -958,13 +1206,13 @@ suite("XML", () => {
                 xml.RightAngleBracket(10)]));
             basicSegmentTests(endTag, 0, `</ a = "b">`);
             const context = new xml.FormatContext();
-            assert.deepStrictEqual(endTag.format(context), `</ a="b">`);
-            assert.deepStrictEqual(context.currentColumnIndex, 9);
+            assert.deepEqual(endTag.format(context), `</ a="b">`);
+            assert.deepEqual(context.currentColumnIndex, 9);
 
-            assert.deepStrictEqual(endTag.leftAngleBracket, xml.LeftAngleBracket(0));
-            assert.deepStrictEqual(endTag.forwardSlash, xml.ForwardSlash(1));
-            assert.deepStrictEqual(endTag.name, undefined);
-            assert.deepStrictEqual(endTag.getRightAngleBracket(), xml.RightAngleBracket(10));
+            assert.deepEqual(endTag.leftAngleBracket, xml.LeftAngleBracket(0));
+            assert.deepEqual(endTag.forwardSlash, xml.ForwardSlash(1));
+            assert.deepEqual(endTag.name, undefined);
+            assert.deepEqual(endTag.getRightAngleBracket(), xml.RightAngleBracket(10));
 
             testContainsIndex(endTag, (index: number) => { return endTag.startIndex < index && index < endTag.afterEndIndex; });
         });
@@ -978,13 +1226,13 @@ suite("XML", () => {
                 xml.RightAngleBracket(7)]));
             basicSegmentTests(endTag, 0, `</end  >`);
             const context = new xml.FormatContext();
-            assert.deepStrictEqual(endTag.format(context), `</end>`);
-            assert.deepStrictEqual(context.currentColumnIndex, 6);
+            assert.deepEqual(endTag.format(context), `</end>`);
+            assert.deepEqual(context.currentColumnIndex, 6);
 
-            assert.deepStrictEqual(endTag.leftAngleBracket, xml.LeftAngleBracket(0));
-            assert.deepStrictEqual(endTag.forwardSlash, xml.ForwardSlash(1));
-            assert.deepStrictEqual(endTag.name, parseName("end", 2));
-            assert.deepStrictEqual(endTag.getRightAngleBracket(), xml.RightAngleBracket(7));
+            assert.deepEqual(endTag.leftAngleBracket, xml.LeftAngleBracket(0));
+            assert.deepEqual(endTag.forwardSlash, xml.ForwardSlash(1));
+            assert.deepEqual(endTag.name, parseName("end", 2));
+            assert.deepEqual(endTag.getRightAngleBracket(), xml.RightAngleBracket(7));
 
             testContainsIndex(endTag, (index: number) => { return endTag.startIndex < index && index < endTag.afterEndIndex; });
         });
@@ -992,31 +1240,42 @@ suite("XML", () => {
 
     suite("EmptyElement", () => {
         test(`with "<a/"`, () => {
-            const emptyTag = new xml.EmptyElement(new qub.ArrayList([xml.LeftAngleBracket(0), parseName("a", 1), xml.ForwardSlash(2)]));
+            const emptyTag = new xml.EmptyElement(new qub.ArrayList([
+                xml.LeftAngleBracket(0),
+                parseName("a", 1),
+                xml.ForwardSlash(2)
+            ]));
             basicSegmentTests(emptyTag, 0, "<a/");
             const context = new xml.FormatContext();
-            assert.deepStrictEqual(emptyTag.format(context), "<a/");
-            assert.deepStrictEqual(context.currentColumnIndex, emptyTag.getLength());
+            assert.deepEqual(emptyTag.format(context), "<a/");
+            assert.deepEqual(context.currentColumnIndex, emptyTag.getLength());
 
-            assert.deepStrictEqual(emptyTag.leftAngleBracket, xml.LeftAngleBracket(0));
-            assert.deepStrictEqual(emptyTag.getName(), parseName("a", 1));
-            assert.deepStrictEqual(emptyTag.attributes.toArray(), []);
-            assert.deepStrictEqual(emptyTag.getRightAngleBracket(), undefined);
+            assert.deepEqual(emptyTag.leftAngleBracket, xml.LeftAngleBracket(0));
+            assert.deepEqual(emptyTag.getName(), parseName("a", 1));
+            assert.deepEqual(emptyTag.attributes.toArray(), []);
+            assert.deepEqual(emptyTag.forwardSlash, xml.ForwardSlash(2));
+            assert.deepEqual(emptyTag.getRightAngleBracket(), undefined);
 
             testContainsIndex(emptyTag, (index: number) => { return emptyTag.startIndex < index; });
         });
 
         test(`with "<a/>"`, () => {
-            const emptyTag = new xml.EmptyElement(new qub.ArrayList([xml.LeftAngleBracket(0), parseName("a", 1), xml.ForwardSlash(2), xml.RightAngleBracket(3)]));
+            const emptyTag = new xml.EmptyElement(new qub.ArrayList([
+                xml.LeftAngleBracket(0),
+                parseName("a", 1),
+                xml.ForwardSlash(2),
+                xml.RightAngleBracket(3)
+            ]));
             basicSegmentTests(emptyTag, 0, "<a/>");
             const context = new xml.FormatContext();
-            assert.deepStrictEqual(emptyTag.format(context), "<a/>");
-            assert.deepStrictEqual(context.currentColumnIndex, emptyTag.getLength());
+            assert.deepEqual(emptyTag.format(context), "<a/>");
+            assert.deepEqual(context.currentColumnIndex, emptyTag.getLength());
 
-            assert.deepStrictEqual(emptyTag.leftAngleBracket, xml.LeftAngleBracket(0));
-            assert.deepStrictEqual(emptyTag.getName(), parseName("a", 1));
-            assert.deepStrictEqual(emptyTag.attributes.toArray(), []);
-            assert.deepStrictEqual(emptyTag.getRightAngleBracket(), xml.RightAngleBracket(3));
+            assert.deepEqual(emptyTag.leftAngleBracket, xml.LeftAngleBracket(0));
+            assert.deepEqual(emptyTag.getName(), parseName("a", 1));
+            assert.deepEqual(emptyTag.attributes.toArray(), []);
+            assert.deepEqual(emptyTag.forwardSlash, xml.ForwardSlash(2));
+            assert.deepEqual(emptyTag.getRightAngleBracket(), xml.RightAngleBracket(3));
 
             testContainsIndex(emptyTag, (index: number) => { return emptyTag.startIndex < index && index < emptyTag.afterEndIndex; });
         });
@@ -1032,13 +1291,14 @@ suite("XML", () => {
                 xml.RightAngleBracket(10)]));
             basicSegmentTests(emptyTag, 0, `<a b="c" />`);
             const context = new xml.FormatContext();
-            assert.deepStrictEqual(emptyTag.format(context), `<a b="c" />`);
-            assert.deepStrictEqual(context.currentColumnIndex, emptyTag.getLength());
+            assert.deepEqual(emptyTag.format(context), `<a b="c" />`);
+            assert.deepEqual(context.currentColumnIndex, emptyTag.getLength());
 
-            assert.deepStrictEqual(emptyTag.leftAngleBracket, xml.LeftAngleBracket(0));
-            assert.deepStrictEqual(emptyTag.getName(), parseName("a", 1));
-            assert.deepStrictEqual(emptyTag.attributes.toArray(), [parseAttribute(`b="c"`, 3)]);
-            assert.deepStrictEqual(emptyTag.getRightAngleBracket(), xml.RightAngleBracket(10));
+            assert.deepEqual(emptyTag.leftAngleBracket, xml.LeftAngleBracket(0));
+            assert.deepEqual(emptyTag.getName(), parseName("a", 1));
+            assert.deepEqual(emptyTag.attributes.toArray(), [parseAttribute(`b="c"`, 3)]);
+            assert.deepEqual(emptyTag.forwardSlash, xml.ForwardSlash(9));
+            assert.deepEqual(emptyTag.getRightAngleBracket(), xml.RightAngleBracket(10));
 
             testContainsIndex(emptyTag, (index: number) => { return emptyTag.startIndex < index && index < emptyTag.afterEndIndex; });
         });
@@ -1054,13 +1314,14 @@ suite("XML", () => {
                 xml.RightAngleBracket(12)]));
             basicSegmentTests(emptyTag, 0, `<a\nb\n=\n"c"\n/>`);
             const context = new xml.FormatContext();
-            assert.deepStrictEqual(emptyTag.format(context), `<a\n  b\n  =\n  "c"\n  />`);
-            assert.deepStrictEqual(context.currentColumnIndex, 4);
+            assert.deepEqual(emptyTag.format(context), `<a\n  b\n  =\n  "c"\n  />`);
+            assert.deepEqual(context.currentColumnIndex, 4);
 
-            assert.deepStrictEqual(emptyTag.leftAngleBracket, xml.LeftAngleBracket(0));
-            assert.deepStrictEqual(emptyTag.getName(), parseName("a", 1));
-            assert.deepStrictEqual(emptyTag.attributes.toArray(), [parseAttribute(`b\n=\n"c"`, 3)]);
-            assert.deepStrictEqual(emptyTag.getRightAngleBracket(), xml.RightAngleBracket(12));
+            assert.deepEqual(emptyTag.leftAngleBracket, xml.LeftAngleBracket(0));
+            assert.deepEqual(emptyTag.getName(), parseName("a", 1));
+            assert.deepEqual(emptyTag.attributes.toArray(), [parseAttribute(`b\n=\n"c"`, 3)]);
+            assert.deepEqual(emptyTag.forwardSlash, xml.ForwardSlash(11));
+            assert.deepEqual(emptyTag.getRightAngleBracket(), xml.RightAngleBracket(12));
 
             testContainsIndex(emptyTag, (index: number) => { return emptyTag.startIndex < index && index < emptyTag.afterEndIndex; });
         });
@@ -1071,11 +1332,11 @@ suite("XML", () => {
             const unrecognizedTag = new xml.UnrecognizedTag(new qub.ArrayList([xml.LeftAngleBracket(0)]));
             basicSegmentTests(unrecognizedTag, 0, "<");
             const context = new xml.FormatContext();
-            assert.deepStrictEqual(unrecognizedTag.format(context), "<");
-            assert.deepStrictEqual(context.currentColumnIndex, unrecognizedTag.getLength());
+            assert.deepEqual(unrecognizedTag.format(context), "<");
+            assert.deepEqual(context.currentColumnIndex, unrecognizedTag.getLength());
 
-            assert.deepStrictEqual(unrecognizedTag.leftAngleBracket, xml.LeftAngleBracket(0));
-            assert.deepStrictEqual(unrecognizedTag.getRightAngleBracket(), undefined);
+            assert.deepEqual(unrecognizedTag.leftAngleBracket, xml.LeftAngleBracket(0));
+            assert.deepEqual(unrecognizedTag.getRightAngleBracket(), undefined);
 
             testContainsIndex(unrecognizedTag, (index: number) => { return unrecognizedTag.startIndex < index; });
         });
@@ -1084,11 +1345,11 @@ suite("XML", () => {
             const unrecognizedTag = new xml.UnrecognizedTag(new qub.ArrayList([xml.LeftAngleBracket(0), xml.RightAngleBracket(1)]));
             basicSegmentTests(unrecognizedTag, 0, "<>");
             const context = new xml.FormatContext();
-            assert.deepStrictEqual(unrecognizedTag.format(context), "<>");
-            assert.deepStrictEqual(context.currentColumnIndex, unrecognizedTag.getLength());
+            assert.deepEqual(unrecognizedTag.format(context), "<>");
+            assert.deepEqual(context.currentColumnIndex, unrecognizedTag.getLength());
 
-            assert.deepStrictEqual(unrecognizedTag.leftAngleBracket, xml.LeftAngleBracket(0));
-            assert.deepStrictEqual(unrecognizedTag.getRightAngleBracket(), xml.RightAngleBracket(1));
+            assert.deepEqual(unrecognizedTag.leftAngleBracket, xml.LeftAngleBracket(0));
+            assert.deepEqual(unrecognizedTag.getRightAngleBracket(), xml.RightAngleBracket(1));
 
             testContainsIndex(unrecognizedTag, (index: number) => { return unrecognizedTag.startIndex < index && index < unrecognizedTag.afterEndIndex; });
         });
@@ -1100,11 +1361,11 @@ suite("XML", () => {
                 xml.RightAngleBracket(2)]));
             basicSegmentTests(unrecognizedTag, 0, `< >`);
             const context = new xml.FormatContext();
-            assert.deepStrictEqual(unrecognizedTag.format(context), `<>`);
-            assert.deepStrictEqual(context.currentColumnIndex, 2);
+            assert.deepEqual(unrecognizedTag.format(context), `<>`);
+            assert.deepEqual(context.currentColumnIndex, 2);
 
-            assert.deepStrictEqual(unrecognizedTag.leftAngleBracket, xml.LeftAngleBracket(0));
-            assert.deepStrictEqual(unrecognizedTag.getRightAngleBracket(), xml.RightAngleBracket(2));
+            assert.deepEqual(unrecognizedTag.leftAngleBracket, xml.LeftAngleBracket(0));
+            assert.deepEqual(unrecognizedTag.getRightAngleBracket(), xml.RightAngleBracket(2));
 
             testContainsIndex(unrecognizedTag, (index: number) => { return unrecognizedTag.startIndex < index && index < unrecognizedTag.afterEndIndex; });
         });
@@ -1120,11 +1381,11 @@ suite("XML", () => {
                 xml.RightAngleBracket(11)]));
             basicSegmentTests(unrecognizedTag, 0, `< hello . =>`);
             const context = new xml.FormatContext();
-            assert.deepStrictEqual(unrecognizedTag.format(context), `< hello. =>`);
-            assert.deepStrictEqual(context.currentColumnIndex, 11);
+            assert.deepEqual(unrecognizedTag.format(context), `< hello. =>`);
+            assert.deepEqual(context.currentColumnIndex, 11);
 
-            assert.deepStrictEqual(unrecognizedTag.leftAngleBracket, xml.LeftAngleBracket(0));
-            assert.deepStrictEqual(unrecognizedTag.getRightAngleBracket(), xml.RightAngleBracket(11));
+            assert.deepEqual(unrecognizedTag.leftAngleBracket, xml.LeftAngleBracket(0));
+            assert.deepEqual(unrecognizedTag.getRightAngleBracket(), xml.RightAngleBracket(11));
 
             testContainsIndex(unrecognizedTag, (index: number) => { return unrecognizedTag.startIndex < index && index < unrecognizedTag.afterEndIndex; });
         });
@@ -1145,11 +1406,11 @@ suite("XML", () => {
 
         function internalDefitionTest(text: string, expectedLeftSquareBracket: xml.Lex, expectedRightSquareBracket?: xml.Lex): void {
             test(`with ${qub.escapeAndQuote(text)}`, () => {
-                const internalDefinition = new xml.InternalDefinition(parseLexes(text));
+                const internalDefinition = new xml.InternalDefinition(parseXmlLexes(text));
                 basicSegmentTests(internalDefinition, 0, text);
 
-                assert.deepStrictEqual(internalDefinition.leftSquareBracket, expectedLeftSquareBracket);
-                assert.deepStrictEqual(internalDefinition.rightSquareBracket, expectedRightSquareBracket);
+                assert.deepEqual(internalDefinition.leftSquareBracket, expectedLeftSquareBracket);
+                assert.deepEqual(internalDefinition.rightSquareBracket, expectedRightSquareBracket);
 
                 testContainsIndex(internalDefinition, (index: number) => { return internalDefinition.startIndex < index && (!expectedRightSquareBracket || index < internalDefinition.afterEndIndex); });
             });
@@ -1166,12 +1427,12 @@ suite("XML", () => {
             const doctype = new xml.DOCTYPE(new qub.ArrayList([xml.LeftAngleBracket(0), xml.ExclamationPoint(1), parseLetters("DOCTYPE", 2)]));
             basicSegmentTests(doctype, 0, "<!DOCTYPE");
             const context = new xml.FormatContext();
-            assert.deepStrictEqual(doctype.format(context), "<!DOCTYPE", "Wrong format().");
-            assert.deepStrictEqual(context.currentColumnIndex, 9);
+            assert.deepEqual(doctype.format(context), "<!DOCTYPE", "Wrong format().");
+            assert.deepEqual(context.currentColumnIndex, 9);
 
-            assert.deepStrictEqual(doctype.name, parseLetters("DOCTYPE", 2), "Wrong name.");
-            assert.deepStrictEqual(doctype.leftAngleBracket, xml.LeftAngleBracket(0), "Wrong leftAngleBracket.");
-            assert.deepStrictEqual(doctype.getRightAngleBracket(), undefined, "Wrong rightAngleBracket.");
+            assert.deepEqual(doctype.name, parseLetters("DOCTYPE", 2), "Wrong name.");
+            assert.deepEqual(doctype.leftAngleBracket, xml.LeftAngleBracket(0), "Wrong leftAngleBracket.");
+            assert.deepEqual(doctype.getRightAngleBracket(), undefined, "Wrong rightAngleBracket.");
 
             testContainsIndex(doctype, (index: number) => { return doctype.startIndex < index; });
         });
@@ -1184,12 +1445,12 @@ suite("XML", () => {
                 xml.RightAngleBracket(9)]));
             basicSegmentTests(doctype, 0, "<!DOCTYPE>");
             const context = new xml.FormatContext();
-            assert.deepStrictEqual(doctype.format(context), "<!DOCTYPE>");
-            assert.deepStrictEqual(context.currentColumnIndex, 10);
+            assert.deepEqual(doctype.format(context), "<!DOCTYPE>");
+            assert.deepEqual(context.currentColumnIndex, 10);
 
-            assert.deepStrictEqual(doctype.name, parseLetters("DOCTYPE", 2));
-            assert.deepStrictEqual(doctype.leftAngleBracket, xml.LeftAngleBracket(0));
-            assert.deepStrictEqual(doctype.getRightAngleBracket(), xml.RightAngleBracket(9));
+            assert.deepEqual(doctype.name, parseLetters("DOCTYPE", 2));
+            assert.deepEqual(doctype.leftAngleBracket, xml.LeftAngleBracket(0));
+            assert.deepEqual(doctype.getRightAngleBracket(), xml.RightAngleBracket(9));
 
             testContainsIndex(doctype, (index: number) => { return doctype.startIndex < index && index < doctype.afterEndIndex; });
         });
@@ -1204,12 +1465,12 @@ suite("XML", () => {
                 xml.RightAngleBracket(14)]));
             basicSegmentTests(doctype, 0, `<!DOCTYPE root>`);
             const context = new xml.FormatContext();
-            assert.deepStrictEqual(doctype.format(context), `<!DOCTYPE root>`);
-            assert.deepStrictEqual(context.currentColumnIndex, 15);
+            assert.deepEqual(doctype.format(context), `<!DOCTYPE root>`);
+            assert.deepEqual(context.currentColumnIndex, 15);
 
-            assert.deepStrictEqual(doctype.name, parseLetters("DOCTYPE", 2));
-            assert.deepStrictEqual(doctype.leftAngleBracket, xml.LeftAngleBracket(0));
-            assert.deepStrictEqual(doctype.getRightAngleBracket(), xml.RightAngleBracket(14));
+            assert.deepEqual(doctype.name, parseLetters("DOCTYPE", 2));
+            assert.deepEqual(doctype.leftAngleBracket, xml.LeftAngleBracket(0));
+            assert.deepEqual(doctype.getRightAngleBracket(), xml.RightAngleBracket(14));
 
             testContainsIndex(doctype, (index: number) => { return doctype.startIndex < index && index < doctype.afterEndIndex; });
         });
@@ -1225,12 +1486,12 @@ suite("XML", () => {
                 xml.RightAngleBracket(20)]));
             basicSegmentTests(doctype, 0, `<!DOCTYPE    root   >`);
             const context = new xml.FormatContext();
-            assert.deepStrictEqual(doctype.format(context), `<!DOCTYPE root>`, "Wrong format.");
-            assert.deepStrictEqual(context.currentColumnIndex, 15);
+            assert.deepEqual(doctype.format(context), `<!DOCTYPE root>`, "Wrong format.");
+            assert.deepEqual(context.currentColumnIndex, 15);
 
-            assert.deepStrictEqual(doctype.name, parseLetters("DOCTYPE", 2));
-            assert.deepStrictEqual(doctype.leftAngleBracket, xml.LeftAngleBracket(0));
-            assert.deepStrictEqual(doctype.getRightAngleBracket(), xml.RightAngleBracket(20));
+            assert.deepEqual(doctype.name, parseLetters("DOCTYPE", 2));
+            assert.deepEqual(doctype.leftAngleBracket, xml.LeftAngleBracket(0));
+            assert.deepEqual(doctype.getRightAngleBracket(), xml.RightAngleBracket(20));
 
             testContainsIndex(doctype, (index: number) => { return doctype.startIndex < index && index < doctype.afterEndIndex; });
         });
@@ -1241,10 +1502,11 @@ suite("XML", () => {
             const comment = new xml.Comment(new qub.ArrayList([xml.LeftAngleBracket(0), xml.ExclamationPoint(1), xml.Dash(2), xml.Dash(3)]));
             basicSegmentTests(comment, 0, "<!--");
             const context = new xml.FormatContext();
-            assert.deepStrictEqual(comment.format(context), "<!--");
-            assert.deepStrictEqual(context.currentColumnIndex, 4);
-            assert.deepStrictEqual(comment.getRightAngleBracket(), undefined);
-            assert.deepStrictEqual(comment.contentSegments.toArray(), []);
+            assert.deepEqual(comment.format(context), "<!--");
+            assert.deepEqual(context.currentColumnIndex, 4);
+            assert.deepEqual(comment.getRightAngleBracket(), undefined);
+            assert.deepEqual(comment.contentSegments.toArray(), []);
+            assert.deepEqual(comment.contentText, "");
 
             testContainsIndex(comment, (index: number) => { return comment.startIndex < index; });
         });
@@ -1261,10 +1523,11 @@ suite("XML", () => {
                 xml.RightAngleBracket(7)]));
             basicSegmentTests(comment, 0, "<!-- -->");
             const context = new xml.FormatContext();
-            assert.deepStrictEqual(comment.format(context), "<!-- -->");
-            assert.deepStrictEqual(context.currentColumnIndex, 8);
-            assert.deepStrictEqual(comment.getRightAngleBracket(), xml.RightAngleBracket(7));
-            assert.deepStrictEqual(comment.contentSegments.toArray(), [parseWhitespace(" ", 4)]);
+            assert.deepEqual(comment.format(context), "<!-- -->");
+            assert.deepEqual(context.currentColumnIndex, 8);
+            assert.deepEqual(comment.getRightAngleBracket(), xml.RightAngleBracket(7));
+            assert.deepEqual(comment.contentSegments.toArray(), [parseWhitespace(" ", 4)]);
+            assert.deepEqual(comment.contentText, " ");
 
             testContainsIndex(comment, (index: number) => { return comment.startIndex < index && index < comment.afterEndIndex; });
         });
@@ -1280,10 +1543,11 @@ suite("XML", () => {
                 xml.RightAngleBracket(6)]));
             basicSegmentTests(comment, 0, `<!-- ->`);
             const context = new xml.FormatContext();
-            assert.deepStrictEqual(comment.format(context), `<!-- ->`);
-            assert.deepStrictEqual(context.currentColumnIndex, 7);
-            assert.deepStrictEqual(comment.getRightAngleBracket(), undefined);
-            assert.deepStrictEqual(comment.contentSegments.toArray(), comment.segments.skip(4).toArray());
+            assert.deepEqual(comment.format(context), `<!-- ->`);
+            assert.deepEqual(context.currentColumnIndex, 7);
+            assert.deepEqual(comment.getRightAngleBracket(), undefined);
+            assert.deepEqual(comment.contentSegments.toArray(), comment.segments.skip(4).toArray());
+            assert.deepEqual(comment.contentText, " ->");
 
             testContainsIndex(comment, (index: number) => { return comment.startIndex < index; });
         });
@@ -1307,12 +1571,12 @@ suite("XML", () => {
             basicSegmentTests(pi, 0, "<");
 
             const context = new xml.FormatContext();
-            assert.deepStrictEqual(pi.format(context), "<");
-            assert.deepStrictEqual(context.currentColumnIndex, 1);
+            assert.deepEqual(pi.format(context), "<");
+            assert.deepEqual(context.currentColumnIndex, 1);
 
-            assert.deepStrictEqual(pi.leftAngleBracket, xml.LeftAngleBracket(0));
-            assert.deepStrictEqual(pi.name, undefined);
-            assert.deepStrictEqual(pi.getRightAngleBracket(), undefined);
+            assert.deepEqual(pi.leftAngleBracket, xml.LeftAngleBracket(0));
+            assert.deepEqual(pi.name, undefined);
+            assert.deepEqual(pi.getRightAngleBracket(), undefined);
 
             testContainsIndex(pi, (index: number) => { return pi.startIndex < index; });
         });
@@ -1322,12 +1586,12 @@ suite("XML", () => {
             basicSegmentTests(pi, 0, "<?");
 
             const context = new xml.FormatContext();
-            assert.deepStrictEqual(pi.format(context), "<?");
-            assert.deepStrictEqual(context.currentColumnIndex, 2);
+            assert.deepEqual(pi.format(context), "<?");
+            assert.deepEqual(context.currentColumnIndex, 2);
 
-            assert.deepStrictEqual(pi.leftAngleBracket, xml.LeftAngleBracket(0));
-            assert.deepStrictEqual(pi.name, undefined);
-            assert.deepStrictEqual(pi.getRightAngleBracket(), undefined);
+            assert.deepEqual(pi.leftAngleBracket, xml.LeftAngleBracket(0));
+            assert.deepEqual(pi.name, undefined);
+            assert.deepEqual(pi.getRightAngleBracket(), undefined);
 
             testContainsIndex(pi, (index: number) => { return pi.startIndex < index; });
         });
@@ -1337,12 +1601,12 @@ suite("XML", () => {
             basicSegmentTests(pi, 0, "<? ");
 
             const context = new xml.FormatContext();
-            assert.deepStrictEqual(pi.format(context), "<?");
-            assert.deepStrictEqual(context.currentColumnIndex, 2);
+            assert.deepEqual(pi.format(context), "<?");
+            assert.deepEqual(context.currentColumnIndex, 2);
 
-            assert.deepStrictEqual(pi.leftAngleBracket, xml.LeftAngleBracket(0));
-            assert.deepStrictEqual(pi.name, undefined);
-            assert.deepStrictEqual(pi.getRightAngleBracket(), undefined);
+            assert.deepEqual(pi.leftAngleBracket, xml.LeftAngleBracket(0));
+            assert.deepEqual(pi.name, undefined);
+            assert.deepEqual(pi.getRightAngleBracket(), undefined);
 
             testContainsIndex(pi, (index: number) => { return pi.startIndex < index; });
         });
@@ -1352,12 +1616,12 @@ suite("XML", () => {
             basicSegmentTests(pi, 0, "<?hello:pi");
 
             const context = new xml.FormatContext();
-            assert.deepStrictEqual(pi.format(context), "<?hello:pi");
-            assert.deepStrictEqual(context.currentColumnIndex, 10);
+            assert.deepEqual(pi.format(context), "<?hello:pi");
+            assert.deepEqual(context.currentColumnIndex, 10);
 
-            assert.deepStrictEqual(pi.leftAngleBracket, xml.LeftAngleBracket(0));
-            assert.deepStrictEqual(pi.name, parseName("hello:pi", 2));
-            assert.deepStrictEqual(pi.getRightAngleBracket(), undefined);
+            assert.deepEqual(pi.leftAngleBracket, xml.LeftAngleBracket(0));
+            assert.deepEqual(pi.name, parseName("hello:pi", 2));
+            assert.deepEqual(pi.getRightAngleBracket(), undefined);
 
             testContainsIndex(pi, (index: number) => { return pi.startIndex < index; });
         });
@@ -1376,12 +1640,12 @@ suite("XML", () => {
             basicSegmentTests(pi, 0, "<?hello:pi 50 , ");
 
             const context = new xml.FormatContext();
-            assert.deepStrictEqual(pi.format(context), "<?hello:pi 50 ,");
-            assert.deepStrictEqual(context.currentColumnIndex, 15);
+            assert.deepEqual(pi.format(context), "<?hello:pi 50 ,");
+            assert.deepEqual(context.currentColumnIndex, 15);
 
-            assert.deepStrictEqual(pi.leftAngleBracket, xml.LeftAngleBracket(0));
-            assert.deepStrictEqual(pi.name, parseName("hello:pi", 2));
-            assert.deepStrictEqual(pi.getRightAngleBracket(), undefined);
+            assert.deepEqual(pi.leftAngleBracket, xml.LeftAngleBracket(0));
+            assert.deepEqual(pi.name, parseName("hello:pi", 2));
+            assert.deepEqual(pi.getRightAngleBracket(), undefined);
 
             testContainsIndex(pi, (index: number) => { return pi.startIndex < index; });
         });
@@ -1397,12 +1661,12 @@ suite("XML", () => {
             basicSegmentTests(pi, 0, "<?hello:pi?>");
 
             const context = new xml.FormatContext();
-            assert.deepStrictEqual(pi.format(context), "<?hello:pi?>");
-            assert.deepStrictEqual(context.currentColumnIndex, 12);
+            assert.deepEqual(pi.format(context), "<?hello:pi?>");
+            assert.deepEqual(context.currentColumnIndex, 12);
 
-            assert.deepStrictEqual(pi.leftAngleBracket, xml.LeftAngleBracket(0));
-            assert.deepStrictEqual(pi.name, parseName("hello:pi", 2));
-            assert.deepStrictEqual(pi.getRightAngleBracket(), xml.RightAngleBracket(11));
+            assert.deepEqual(pi.leftAngleBracket, xml.LeftAngleBracket(0));
+            assert.deepEqual(pi.name, parseName("hello:pi", 2));
+            assert.deepEqual(pi.getRightAngleBracket(), xml.RightAngleBracket(11));
 
             testContainsIndex(pi, (index: number) => { return pi.startIndex < index && index < pi.afterEndIndex; });
         });
@@ -1418,9 +1682,9 @@ suite("XML", () => {
                 xml.LeftSquareBracket(8)]));
             basicSegmentTests(cdata, 0, "<![CDATA[");
             const context = new xml.FormatContext();
-            assert.deepStrictEqual(cdata.format(context), "<![CDATA[");
-            assert.deepStrictEqual(context.currentColumnIndex, 9);
-            assert.deepStrictEqual(cdata.dataSegments.toArray(), cdata.segments.skip(5).toArray());
+            assert.deepEqual(cdata.format(context), "<![CDATA[");
+            assert.deepEqual(context.currentColumnIndex, 9);
+            assert.deepEqual(cdata.dataSegments.toArray(), cdata.segments.skip(5).toArray());
 
             testContainsIndex(cdata, (index: number) => { return cdata.startIndex < index; });
         });
@@ -1436,9 +1700,9 @@ suite("XML", () => {
                 parseLetters("hello", 10)]));
             basicSegmentTests(cdata, 0, "<![CDATA[ hello");
             const context = new xml.FormatContext();
-            assert.deepStrictEqual(cdata.format(context), "<![CDATA[ hello");
-            assert.deepStrictEqual(context.currentColumnIndex, 15);
-            assert.deepStrictEqual(cdata.dataSegments.toArray(), cdata.segments.skip(5).toArray());
+            assert.deepEqual(cdata.format(context), "<![CDATA[ hello");
+            assert.deepEqual(context.currentColumnIndex, 15);
+            assert.deepEqual(cdata.dataSegments.toArray(), cdata.segments.skip(5).toArray());
 
             testContainsIndex(cdata, (index: number) => { return cdata.startIndex < index; });
         });
@@ -1453,9 +1717,9 @@ suite("XML", () => {
                 xml.RightSquareBracket(9)]));
             basicSegmentTests(cdata, 0, "<![CDATA[]");
             const context = new xml.FormatContext();
-            assert.deepStrictEqual(cdata.format(context), "<![CDATA[]");
-            assert.deepStrictEqual(context.currentColumnIndex, 10);
-            assert.deepStrictEqual(cdata.dataSegments.toArray(), cdata.segments.skip(5).toArray());
+            assert.deepEqual(cdata.format(context), "<![CDATA[]");
+            assert.deepEqual(context.currentColumnIndex, 10);
+            assert.deepEqual(cdata.dataSegments.toArray(), cdata.segments.skip(5).toArray());
 
             testContainsIndex(cdata, (index: number) => { return cdata.startIndex < index; });
         });
@@ -1471,9 +1735,9 @@ suite("XML", () => {
                 xml.RightSquareBracket(10)]));
             basicSegmentTests(cdata, 0, "<![CDATA[]]");
             const context = new xml.FormatContext();
-            assert.deepStrictEqual(cdata.format(context), "<![CDATA[]]");
-            assert.deepStrictEqual(context.currentColumnIndex, 11);
-            assert.deepStrictEqual(cdata.dataSegments.toArray(), cdata.segments.skip(5).toArray());
+            assert.deepEqual(cdata.format(context), "<![CDATA[]]");
+            assert.deepEqual(context.currentColumnIndex, 11);
+            assert.deepEqual(cdata.dataSegments.toArray(), cdata.segments.skip(5).toArray());
 
             testContainsIndex(cdata, (index: number) => { return cdata.startIndex < index; });
         });
@@ -1490,9 +1754,9 @@ suite("XML", () => {
                 xml.RightAngleBracket(11)]));
             basicSegmentTests(cdata, 0, "<![CDATA[]]>");
             const context = new xml.FormatContext();
-            assert.deepStrictEqual(cdata.format(context), "<![CDATA[]]>");
-            assert.deepStrictEqual(context.currentColumnIndex, 12);
-            assert.deepStrictEqual(cdata.dataSegments.toArray(), cdata.segments.skip(5).skipLast(3).toArray());
+            assert.deepEqual(cdata.format(context), "<![CDATA[]]>");
+            assert.deepEqual(context.currentColumnIndex, 12);
+            assert.deepEqual(cdata.dataSegments.toArray(), cdata.segments.skip(5).skipLast(3).toArray());
 
             testContainsIndex(cdata, (index: number) => { return cdata.startIndex < index && index < cdata.afterEndIndex; });
         });
@@ -1504,21 +1768,21 @@ suite("XML", () => {
             const expectedLength: number = expectedString.length;
 
             test(`with ${qub.escapeAndQuote(textString)}`, () => {
-                const text = new xml.Text(parseLexes(textString, 0));
-                assert.deepStrictEqual(text.toString(), expectedString, "Wrong toString().");
+                const text = new xml.Text(parseXmlLexes(textString, 0));
+                assert.deepEqual(text.toString(), expectedString, "Wrong toString().");
                 const context = new xml.FormatContext();
-                assert.deepStrictEqual(text.format(context), expectedFormattedText, "Wrong format()");
-                assert.deepStrictEqual(context.currentColumnIndex, expectedFormattedText.length);
-                assert.deepStrictEqual(text.isWhitespace(), textString.trim() === "", "Wrong isWhitespace().");
+                assert.deepEqual(text.format(context), expectedFormattedText, "Wrong format()");
+                assert.deepEqual(context.currentColumnIndex, expectedFormattedText.length);
+                assert.deepEqual(text.isWhitespace(), textString.trim() === "", "Wrong isWhitespace().");
 
-                assert.deepStrictEqual(text.startIndex, 0);
-                assert.deepStrictEqual(text.getLength(), expectedLength);
-                assert.deepStrictEqual(text.afterEndIndex, expectedLength);
-                assert.deepStrictEqual(text.span, new qub.Span(0, expectedLength));
-                assert.deepStrictEqual(text.nonWhitespaceSpan, nonWhitespaceSpan);
+                assert.deepEqual(text.startIndex, 0);
+                assert.deepEqual(text.getLength(), expectedLength);
+                assert.deepEqual(text.afterEndIndex, expectedLength);
+                assert.deepEqual(text.span, new qub.Span(0, expectedLength));
+                assert.deepEqual(text.nonWhitespaceSpan, nonWhitespaceSpan);
 
                 for (let i = -1; i <= text.afterEndIndex + 1; ++i) {
-                    assert.deepStrictEqual(text.containsIndex(i), text.startIndex <= i && i <= text.afterEndIndex);
+                    assert.deepEqual(text.containsIndex(i), text.startIndex <= i && i <= text.afterEndIndex);
                 }
             });
         }
@@ -1533,7 +1797,7 @@ suite("XML", () => {
             function constructorTest(text: string): void {
                 test(`with ${qub.escapeAndQuote(text)}`, () => {
                     const tokenizer = new xml.Tokenizer(text);
-                    assert.deepStrictEqual(tokenizer.hasStarted(), false);
+                    assert.deepEqual(tokenizer.hasStarted(), false);
                 });
             }
 
@@ -1553,15 +1817,15 @@ suite("XML", () => {
                     const tokenizer = new xml.Tokenizer(text);
 
                     for (const expectedSegment of expectedSegments as xml.Segment[]) {
-                        assert.deepStrictEqual(tokenizer.next(), true, "Expected more segments, next() was false.");
-                        assert.deepStrictEqual(tokenizer.hasStarted(), true, "Expected more segments, hasStarted() was false.");
-                        assert.deepStrictEqual(tokenizer.getCurrent(), expectedSegment);
+                        assert.deepEqual(tokenizer.next(), true, "Expected more segments, next() was false.");
+                        assert.deepEqual(tokenizer.hasStarted(), true, "Expected more segments, hasStarted() was false.");
+                        assert.deepEqual(tokenizer.getCurrent(), expectedSegment);
                     }
 
                     for (let i: number = 0; i < 2; ++i) {
-                        assert.deepStrictEqual(tokenizer.next(), false, "Expected no more segments, next() was true.");
-                        assert.deepStrictEqual(tokenizer.hasStarted(), true, "Expected no more segments, hasStarted() was false.");
-                        assert.deepStrictEqual(tokenizer.getCurrent(), undefined);
+                        assert.deepEqual(tokenizer.next(), false, "Expected no more segments, next() was true.");
+                        assert.deepEqual(tokenizer.hasStarted(), true, "Expected no more segments, hasStarted() was false.");
+                        assert.deepEqual(tokenizer.getCurrent(), undefined);
                     }
                 });
 
@@ -1570,18 +1834,18 @@ suite("XML", () => {
                     const tokenizer = new xml.Tokenizer(text, 0, issues);
 
                     for (const expectedSegment of expectedSegments as xml.Segment[]) {
-                        assert.deepStrictEqual(tokenizer.next(), true, "Expected more segments, next() was false.");
-                        assert.deepStrictEqual(tokenizer.hasStarted(), true, "Expected more segments, hasStarted() was false.");
-                        assert.deepStrictEqual(tokenizer.getCurrent(), expectedSegment);
+                        assert.deepEqual(tokenizer.next(), true, "Expected more segments, next() was false.");
+                        assert.deepEqual(tokenizer.hasStarted(), true, "Expected more segments, hasStarted() was false.");
+                        assert.deepEqual(tokenizer.getCurrent(), expectedSegment);
                     }
 
                     for (let i: number = 0; i < 2; ++i) {
-                        assert.deepStrictEqual(tokenizer.next(), false, "Expected no more segments, next() was true.");
-                        assert.deepStrictEqual(tokenizer.hasStarted(), true, "Expected no more segments, hasStarted() was false.");
-                        assert.deepStrictEqual(tokenizer.getCurrent(), undefined);
+                        assert.deepEqual(tokenizer.next(), false, "Expected no more segments, next() was true.");
+                        assert.deepEqual(tokenizer.hasStarted(), true, "Expected no more segments, hasStarted() was false.");
+                        assert.deepEqual(tokenizer.getCurrent(), undefined);
                     }
 
-                    assert.deepStrictEqual(issues.toArray(), expectedIssues);
+                    assert.deepEqual(issues.toArray(), expectedIssues);
                 });
             }
 
@@ -3134,25 +3398,26 @@ suite("XML", () => {
         function elementTest(text: string, expectedStartTag: xml.StartTag, expectedChildren: xml.Segment[], expectedEndTag: xml.EndTag, expectedFormattedText: string): void {
             test(`with ${qub.escapeAndQuote(text)}`, () => {
                 const element: xml.Element = parseElement(text);
-                assert.deepStrictEqual(element.startIndex, 0);
-                assert.deepStrictEqual(element.getLength(), text.length);
-                assert.deepStrictEqual(element.afterEndIndex, text.length);
-                assert.deepStrictEqual(element.span, new qub.Span(0, text.length));
+                assert.deepEqual(element.startIndex, 0);
+                assert.deepEqual(element.getLength(), text.length);
+                assert.deepEqual(element.afterEndIndex, text.length);
+                assert.deepEqual(element.span, new qub.Span(0, text.length));
 
-                assert.deepStrictEqual(element.toString(), text, "Wrong toString()");
+                assert.deepEqual(element.toString(), text, "Wrong toString()");
                 const context = new xml.FormatContext();
-                assert.deepStrictEqual(element.format(context), expectedFormattedText, "Wrong format()");
-                assert.deepStrictEqual(context.currentColumnIndex, qub.getColumnIndex(expectedFormattedText, expectedFormattedText.length));
+                assert.deepEqual(element.format(context), expectedFormattedText, "Wrong format()");
+                assert.deepEqual(context.currentColumnIndex, qub.getColumnIndex(expectedFormattedText, expectedFormattedText.length));
 
                 for (let i = element.startIndex - 1; i <= element.afterEndIndex + 1; ++i) {
                     const expected: boolean = element.startIndex < i && (!element.endTag || !element.endTag.getRightAngleBracket() || i < element.endTag.afterEndIndex);
-                    assert.deepStrictEqual(element.containsIndex(i), expected, `${i} should ${!expected ? "not" : ""} have been contained by ${qub.escapeAndQuote(text)}`);
+                    assert.deepEqual(element.containsIndex(i), expected, `${i} should ${!expected ? "not" : ""} have been contained by ${qub.escapeAndQuote(text)}`);
                 }
 
-                assert.deepStrictEqual(element.startTag, expectedStartTag, "Wrong startTag");
-                assert.deepStrictEqual(element.getName(), expectedStartTag.getName(), "Wrong name");
-                assert.deepStrictEqual(element.children.toArray(), expectedChildren, "Wrong children");
-                assert.deepStrictEqual(element.endTag, expectedEndTag, "Wrong endTag");
+                assert.deepEqual(element.startTag, expectedStartTag, "Wrong startTag");
+                assert.deepEqual(element.attributes.toArray(), expectedStartTag.attributes.toArray());
+                assert.deepEqual(element.getName(), expectedStartTag.getName(), "Wrong name");
+                assert.deepEqual(element.children.toArray(), expectedChildren, "Wrong children");
+                assert.deepEqual(element.endTag, expectedEndTag, "Wrong endTag");
             });
         }
 
@@ -3213,21 +3478,21 @@ suite("XML", () => {
     suite("Prolog", () => {
         test(`with null segments`, () => {
             const prolog = new xml.Prolog(null);
-            assert.deepStrictEqual(prolog.declaration, undefined);
-            assert.deepStrictEqual(prolog.doctype, undefined);
+            assert.deepEqual(prolog.declaration, undefined);
+            assert.deepEqual(prolog.doctype, undefined);
         });
 
         test(`with undefined segments`, () => {
             const prolog = new xml.Prolog(undefined);
-            assert.deepStrictEqual(prolog.declaration, undefined);
-            assert.deepStrictEqual(prolog.doctype, undefined);
+            assert.deepEqual(prolog.declaration, undefined);
+            assert.deepEqual(prolog.doctype, undefined);
         });
 
         function prologTest(prologText: string, expectedDeclaration?: xml.Declaration, expectedDoctype?: xml.DOCTYPE): void {
             test(`with ${qub.escapeAndQuote(prologText)}`, () => {
                 const prolog = new xml.Prolog(parseSegments(prologText));
-                assert.deepStrictEqual(prolog.declaration, expectedDeclaration);
-                assert.deepStrictEqual(prolog.doctype, expectedDoctype);
+                assert.deepEqual(prolog.declaration, expectedDeclaration);
+                assert.deepEqual(prolog.doctype, expectedDoctype);
             });
         }
 
@@ -3261,21 +3526,21 @@ suite("XML", () => {
 
                 const xmlDocument = new xml.Document(documentSegmentsIterable, new qub.ArrayList<qub.Issue>());
 
-                assert.deepStrictEqual(xmlDocument.segments ? xmlDocument.segments.toArray() : xmlDocument.segments, documentSegments);
+                assert.deepEqual(xmlDocument.segments ? xmlDocument.segments.toArray() : xmlDocument.segments, documentSegments);
 
                 const expectedText: string = qub.getCombinedText(documentSegments);
-                assert.deepStrictEqual(xmlDocument.toString(), expectedText);
-                assert.deepStrictEqual(xmlDocument.getLength(), expectedText.length, "Wrong length.");
+                assert.deepEqual(xmlDocument.toString(), expectedText);
+                assert.deepEqual(xmlDocument.getLength(), expectedText.length, "Wrong length.");
 
                 const context = new xml.FormatContext();
-                assert.deepStrictEqual(xmlDocument.format(context), expectedFormattedText);
-                assert.deepStrictEqual(context.currentColumnIndex, qub.getColumnIndex(expectedFormattedText, expectedFormattedText.length));
+                assert.deepEqual(xmlDocument.format(context), expectedFormattedText);
+                assert.deepEqual(context.currentColumnIndex, qub.getColumnIndex(expectedFormattedText, expectedFormattedText.length));
 
-                assert.deepStrictEqual(xmlDocument.prolog, expectedProlog);
-                assert.deepStrictEqual(xmlDocument.declaration, expectedProlog ? expectedProlog.declaration : undefined);
-                assert.deepStrictEqual(xmlDocument.doctype, expectedProlog ? expectedProlog.doctype : undefined);
+                assert.deepEqual(xmlDocument.prolog, expectedProlog);
+                assert.deepEqual(xmlDocument.declaration, expectedProlog ? expectedProlog.declaration : undefined);
+                assert.deepEqual(xmlDocument.doctype, expectedProlog ? expectedProlog.doctype : undefined);
 
-                assert.deepStrictEqual(xmlDocument.root, expectedElement);
+                assert.deepEqual(xmlDocument.root, expectedElement);
             });
         }
 
@@ -3340,7 +3605,7 @@ suite("XML", () => {
 
                 const xmlDocument = new xml.Document(documentSegmentsIterable, new qub.ArrayList<qub.Issue>());
 
-                assert.deepStrictEqual(xmlDocument.format(contextData), expectedFormattedText);
+                assert.deepEqual(xmlDocument.format(contextData), expectedFormattedText);
             });
         }
 
@@ -3361,18 +3626,18 @@ suite("XML", () => {
         function parseElementTest(elementText: string, elementSegments: xml.Segment[] = [], expectedIssues: qub.Issue[] = []): void {
             test(`with ${qub.escapeAndQuote(elementText)}`, () => {
                 const tokenizer = new xml.Tokenizer(elementText);
-                assert.deepStrictEqual(tokenizer.next(), true);
+                assert.deepEqual(tokenizer.next(), true);
                 assert(tokenizer.getCurrent() instanceof xml.StartTag);
-                assert.deepStrictEqual(xml.parseElement(tokenizer), new xml.Element(new qub.ArrayList(elementSegments)));
+                assert.deepEqual(xml.parseElement(tokenizer), new xml.Element(new qub.ArrayList(elementSegments)));
             });
 
             test(`with ${qub.escapeAndQuote(elementText)} with issues`, () => {
                 const issues = new qub.ArrayList<qub.Issue>();
                 const tokenizer = new xml.Tokenizer(elementText, 0, issues);
-                assert.deepStrictEqual(tokenizer.next(), true);
+                assert.deepEqual(tokenizer.next(), true);
                 assert(tokenizer.getCurrent() instanceof xml.StartTag);
-                assert.deepStrictEqual(xml.parseElement(tokenizer), new xml.Element(new qub.ArrayList(elementSegments)));
-                assert.deepStrictEqual(issues.toArray(), expectedIssues);
+                assert.deepEqual(xml.parseElement(tokenizer), new xml.Element(new qub.ArrayList(elementSegments)));
+                assert.deepEqual(issues.toArray(), expectedIssues);
             });
         }
 
@@ -3419,7 +3684,11 @@ suite("XML", () => {
     suite("parse()", () => {
         function parseTest(documentText: string, expectedDocumentSegments: xml.Segment[], expectedIssues: qub.Issue[] = []): void {
             test(`with ${qub.escapeAndQuote(documentText)}`, () => {
-                assert.deepStrictEqual(xml.parse(documentText), new xml.Document(new qub.ArrayList(expectedDocumentSegments), new qub.ArrayList(expectedIssues)));
+                const document: xml.Document = xml.parse(documentText);
+                const expectedDocument = new xml.Document(new qub.ArrayList<xml.Segment>(expectedDocumentSegments), new qub.ArrayList<qub.Issue>(expectedIssues));
+                assert.deepEqual(document, expectedDocument);
+                assert.deepEqual(document.segments.toArray(), expectedDocumentSegments);
+                assert.deepEqual(document.issues.toArray(), expectedIssues);
             });
         }
 
@@ -3701,437 +3970,5 @@ suite("XML", () => {
                 xml.Issues.documentCanHaveOneRootElement(new qub.Span(44, 7)),
                 xml.Issues.documentCanHaveOneRootElement(new qub.Span(51, 4))
             ]);
-    });
-
-    suite("Extension", () => {
-        test("constructor()", () => {
-            const platform = new mock.Platform();
-            const extension = new xml.Extension(platform);
-            assert.deepStrictEqual(extension.name, "qub-common");
-            assert.deepStrictEqual(platform.getFileTelemetryEvents().toArray(), []);
-            assert.deepStrictEqual(platform.getRemoteTelemetryEvents().toArray(), [
-                { eventName: "Activated" }
-            ]);
-
-            extension.dispose();
-            assert.deepStrictEqual(platform.getFileTelemetryEvents().toArray(), []);
-            assert.deepStrictEqual(platform.getRemoteTelemetryEvents().toArray(), [
-                { eventName: "Activated" },
-                { eventName: "Deactivated" }
-            ]);
-        });
-
-        suite("on document opened", () => {
-            test("with non-xml document", () => {
-                const platform = new mock.Platform();
-                const extension = new xml.Extension(platform);
-
-                const openedDocument = new mock.TextDocument("html", "mock-uri", "I'm not XML!");
-                platform.openTextDocument(openedDocument);
-
-                assert(qub.isDefined(platform.getActiveTextEditor()));
-                assert.deepStrictEqual(platform.getActiveTextEditor().getDocument(), openedDocument);
-                assert.deepStrictEqual(platform.getFileTelemetryEvents().toArray(), []);
-                assert.deepStrictEqual(platform.getRemoteTelemetryEvents().toArray(), [
-                    { eventName: "Activated" }
-                ]);
-            });
-
-            test("with xml document without declaration or DOCTYPE", () => {
-                const platform = new mock.Platform();
-                const extension = new xml.Extension(platform);
-
-                const openedDocument = new mock.TextDocument("xml", "mock-uri", "");
-                platform.openTextDocument(openedDocument);
-
-                assert(qub.isDefined(platform.getActiveTextEditor()));
-                assert.deepStrictEqual(platform.getActiveTextEditor().getDocument(), openedDocument);
-                assert.deepStrictEqual(platform.getFileTelemetryEvents().toArray(), []);
-                assert.deepStrictEqual(platform.getRemoteTelemetryEvents().toArray(), [
-                    { eventName: "Activated" }
-                ]);
-            });
-
-            test("with xml document with declaration but not DOCTYPE", () => {
-                const platform = new mock.Platform();
-                const extension = new xml.Extension(platform);
-
-                const openedDocument = new mock.TextDocument("xml", "mock-uri", `<?xml version="1.0" ?>`);
-                platform.openTextDocument(openedDocument);
-
-                assert(qub.isDefined(platform.getActiveTextEditor()));
-                assert.deepStrictEqual(platform.getActiveTextEditor().getDocument(), openedDocument);
-                assert.deepStrictEqual(platform.getFileTelemetryEvents().toArray(), []);
-                assert.deepStrictEqual(platform.getRemoteTelemetryEvents().toArray(), [
-                    { eventName: "Activated" }
-                ]);
-            });
-
-            test("with xml document with DOCTYPE but not declaration", () => {
-                const platform = new mock.Platform();
-                const extension = new xml.Extension(platform);
-
-                const openedDocument = new mock.TextDocument("xml", "mock-uri", `<!DOCTYPE root>`);
-                platform.openTextDocument(openedDocument);
-
-                assert(qub.isDefined(platform.getActiveTextEditor()));
-                assert.deepStrictEqual(platform.getActiveTextEditor().getDocument(), openedDocument);
-                assert.deepStrictEqual(platform.getFileTelemetryEvents().toArray(), []);
-                assert.deepStrictEqual(platform.getRemoteTelemetryEvents().toArray(), [
-                    { eventName: "Activated" }
-                ]);
-            });
-
-            test("with xml document with declaration and DOCTYPE", () => {
-                const platform = new mock.Platform();
-                const extension = new xml.Extension(platform);
-
-                const openedDocument = new mock.TextDocument("xml", "mock-uri", `<?xml version="1.0"?><!DOCTYPE root>`);
-                platform.openTextDocument(openedDocument);
-
-                assert(qub.isDefined(platform.getActiveTextEditor()));
-                assert.deepStrictEqual(platform.getActiveTextEditor().getDocument(), openedDocument);
-                assert.deepStrictEqual(platform.getFileTelemetryEvents().toArray(), []);
-                assert.deepStrictEqual(platform.getRemoteTelemetryEvents().toArray(), [
-                    { eventName: "Activated" }
-                ]);
-            });
-        });
-
-        suite("on document saved", () => {
-            test("with non-xml document", () => {
-                const platform = new mock.Platform();
-                const extension = new xml.Extension(platform);
-
-                platform.saveTextDocument(new mock.TextDocument("html", "mock-uri", "I'm not XML!"));
-
-                assert.deepStrictEqual(platform.getFileTelemetryEvents().toArray(), []);
-                assert.deepStrictEqual(platform.getRemoteTelemetryEvents().toArray(), [
-                    { eventName: "Activated" }
-                ]);
-            });
-
-            test("with xml document without declaration or DOCTYPE", () => {
-                const platform = new mock.Platform();
-                const extension = new xml.Extension(platform);
-
-                platform.saveTextDocument(new mock.TextDocument("xml", "mock-uri", ""));
-
-                assert.deepStrictEqual(platform.getFileTelemetryEvents().toArray(), []);
-                assert.deepStrictEqual(platform.getRemoteTelemetryEvents().toArray(), [
-                    { eventName: "Activated" }
-                ]);
-            });
-
-            test("with xml document with declaration but not DOCTYPE", () => {
-                const platform = new mock.Platform();
-                const extension = new xml.Extension(platform);
-
-                platform.saveTextDocument(new mock.TextDocument("xml", "mock-uri", `<?xml version="1.0" ?>`));
-
-                assert.deepStrictEqual(platform.getFileTelemetryEvents().toArray(), []);
-                assert.deepStrictEqual(platform.getRemoteTelemetryEvents().toArray(), [
-                    { eventName: "Activated" }
-                ]);
-            });
-
-            test("with xml document with DOCTYPE but not declaration", () => {
-                const platform = new mock.Platform();
-                const extension = new xml.Extension(platform);
-
-                platform.saveTextDocument(new mock.TextDocument("xml", "mock-uri", `<!DOCTYPE root>`));
-
-                assert.deepStrictEqual(platform.getFileTelemetryEvents().toArray(), []);
-                assert.deepStrictEqual(platform.getRemoteTelemetryEvents().toArray(), [
-                    { eventName: "Activated" }
-                ]);
-            });
-
-            test("with xml document with declaration and DOCTYPE", () => {
-                const platform = new mock.Platform();
-                const extension = new xml.Extension(platform);
-
-                platform.saveTextDocument(new mock.TextDocument("xml", "mock-uri", `<?xml version="1.0"?><!DOCTYPE root>`));
-
-                assert.deepStrictEqual(platform.getFileTelemetryEvents().toArray(), []);
-                assert.deepStrictEqual(platform.getRemoteTelemetryEvents().toArray(), [
-                    { eventName: "Activated" }
-                ]);
-            });
-        });
-
-        suite("on document changed", () => {
-            test("with non-xml document", () => {
-                const platform = new mock.Platform();
-                const extension = new xml.Extension(platform);
-
-                platform.setActiveTextEditor(new mock.TextEditor(new mock.TextDocument("html", "mock-uri", "I'm not XML!")));
-                assert.deepStrictEqual(platform.getCursorIndex(), 0);
-                platform.insertText(0, "Oh wait... ");
-
-                assert.deepStrictEqual(platform.getActiveTextEditor().getDocument().getText(), "Oh wait... I'm not XML!");
-                assert.deepStrictEqual(platform.getCursorIndex(), 11);
-
-                assert.deepStrictEqual(platform.getFileTelemetryEvents().toArray(), []);
-                assert.deepStrictEqual(platform.getRemoteTelemetryEvents().toArray(), [
-                    { eventName: "Activated" }
-                ]);
-            });
-
-            function documentChangedTest(documentText: string, insertIndex: number, insertText: string, expectedDocumentText: string, expectedCursorIndex: number): void {
-                test(`with ${qub.escapeAndQuote(documentText)} and inserting ${qub.escapeAndQuote(insertText)} at index ${insertIndex}`, () => {
-                    const platform = new mock.Platform();
-                    const extension = new xml.Extension(platform);
-
-                    platform.setActiveTextEditor(new mock.TextEditor(new mock.TextDocument("xml", "mock-uri", documentText)));
-                    assert.deepStrictEqual(platform.getCursorIndex(), 0);
-                    platform.insertText(insertIndex, insertText);
-
-                    assert.deepStrictEqual(platform.getActiveTextEditor().getDocument().getText(), expectedDocumentText);
-                    assert.deepStrictEqual(platform.getCursorIndex(), expectedCursorIndex);
-
-                    assert.deepStrictEqual(platform.getFileTelemetryEvents().toArray(), []);
-                    assert.deepStrictEqual(platform.getRemoteTelemetryEvents().toArray(), [
-                        { eventName: "Activated" }
-                    ]);
-                });
-            }
-
-            documentChangedTest("I'm XML!", 0, "Oh wait... ", "Oh wait... I'm XML!", 11);
-            documentChangedTest("I'm XML!", 4, "[", "I'm [XML!", 5);
-            documentChangedTest("</abc", 5, "d", "</abcd", 6);
-            documentChangedTest("</abc", 5, ">", "</abc>", 6);
-            documentChangedTest("<abc", 4, "d", "<abcd", 5);
-            documentChangedTest("<abc", 4, ">", "<abc></abc>", 5);
-            documentChangedTest("<abc</abc>", 4, ">", "<abc></abc>", 5);
-            documentChangedTest("<a><b</a>", 5, ">", "<a><b></b></a>", 6);
-            documentChangedTest("<a><b</b></a>", 5, ">", "<a><b></b></a>", 6);
-
-            documentChangedTest("<![CDATA", 8, "[", "<![CDATA[]]>", 9);
-            documentChangedTest("<![CDATA]]>", 8, "[", "<![CDATA[]]>", 9);
-            documentChangedTest("<![CDATA]>", 8, "[", "<![CDATA[]]>", 9);
-            documentChangedTest("<![CDATA]]>", 8, "[", "<![CDATA[]]>", 9);
-            documentChangedTest("<a><![CDATA</a>", 11, "[", "<a><![CDATA[]]></a>", 12);
-            documentChangedTest("<a><![CDATA></a>", 11, "[", "<a><![CDATA[]]></a>", 12);
-            documentChangedTest("<a><![CDATA]></a>", 11, "[", "<a><![CDATA[]]></a>", 12);
-            documentChangedTest("<a><![CDATA]]></a>", 11, "[", "<a><![CDATA[]]></a>", 12);
-
-            documentChangedTest("<!-", 3, "-", "<!-- -->", 4);
-            documentChangedTest("<!-->", 3, "-", "<!-- -->", 4);
-            documentChangedTest("<!--->", 3, "-", "<!-- -->", 4);
-            documentChangedTest("<a><!-</a>", 6, "-", "<a><!-- --></a>", 7);
-            documentChangedTest("<a><!-></a>", 6, "-", "<a><!-- --></a>", 7);
-            documentChangedTest("<a><!--></a>", 6, "-", "<a><!-- --></a>", 7);
-            documentChangedTest("<a><!---></a>", 6, "-", "<a><!-- --></a>", 7);
-            documentChangedTest("<!-   <!-- -->", 3, "-", "<!-- -->   <!-- -->", 4);
-        });
-
-        suite("on hover", () => {
-            test("with no active document", () => {
-                const platform = new mock.Platform();
-                const extension = new xml.Extension(platform);
-
-                assert.deepStrictEqual(platform.getHoverAt(10), undefined);
-            });
-
-            test("with active non-xml document", () => {
-                const platform = new mock.Platform();
-                const extension = new xml.Extension(platform);
-
-                platform.setActiveTextEditor(new mock.TextEditor(new mock.TextDocument("html", "mock-uri", "I'm not XML!")));
-
-                assert.deepStrictEqual(platform.getHoverAt(10), undefined);
-            });
-
-            const declarationText: string = `<?xml version="1.0" encoding="utf-8" standalone="yes" ?>`;
-            for (let i = -1; i < declarationText.length + 1; ++i) {
-                test(`with ${qub.escapeAndQuote(declarationText)} at index ${i}`, () => {
-                    const platform = new mock.Platform();
-                    const extension = new xml.Extension(platform);
-
-                    platform.setActiveTextEditor(new mock.TextEditor(new mock.TextDocument("xml", "C:/Mock/Folders/temp.xml", declarationText)));
-
-                    assert.deepStrictEqual(platform.getHoverAt(i),
-                        (1 <= i && i <= 5) || (i === 19) || (i === 36) || (53 <= i && i <= 55) ? xml.Hovers.declaration(new qub.Span(0, 56)) :
-                            (6 <= i && i <= 18) ? xml.Hovers.declarationVersion(new qub.Span(6, 13)) :
-                                (20 <= i && i <= 35) ? xml.Hovers.declarationEncoding(new qub.Span(20, 16)) :
-                                    (37 <= i && i <= 52) ? xml.Hovers.declarationStandalone(new qub.Span(37, 16)) :
-                                        undefined);
-                });
-            }
-
-            const doctypeText: string = `<!DOCTYPE root SYSTEM "systemIdentifier" []>`;
-            for (let i = -1; i < doctypeText.length + 1; ++i) {
-                test(`with ${qub.escapeAndQuote(doctypeText)} at index ${i}`, () => {
-                    const platform = new mock.Platform();
-                    const extension = new xml.Extension(platform);
-
-                    platform.setActiveTextEditor(new mock.TextEditor(new mock.TextDocument("xml", "C:/Mock/Folders/temp.xml", doctypeText)));
-
-                    assert.deepStrictEqual(platform.getHoverAt(i),
-                        (2 <= i && i <= 9) ? xml.Hovers.doctype(new qub.Span(2, 7)) :
-                            undefined);
-                });
-            }
-
-            const rootElementText: string = `<rootElement><childElement/></rootElement>`;
-            for (let i = -1; i < rootElementText.length + 1; ++i) {
-                test(`with ${qub.escapeAndQuote(rootElementText)} at index ${i}`, () => {
-                    const platform = new mock.Platform();
-                    const extension = new xml.Extension(platform);
-
-                    platform.setActiveTextEditor(new mock.TextEditor(new mock.TextDocument("xml", "C:/Mock/Folders/temp.xml", rootElementText)));
-
-                    assert.deepStrictEqual(platform.getHoverAt(i), undefined);
-                });
-            }
-        });
-
-        suite("on completions", () => {
-            test("with no active document", () => {
-                const platform = new mock.Platform();
-                const extension = new xml.Extension(platform);
-
-                assert.deepStrictEqual(platform.getCompletionsAt(3).toArray(), []);
-            });
-
-            test("with active non-xml document", () => {
-                const platform = new mock.Platform();
-                const extension = new xml.Extension(platform);
-
-                platform.setActiveTextEditor(new mock.TextEditor(new mock.TextDocument("html", "mock-uri", "I'm not XML!")));
-
-                assert.deepStrictEqual(platform.getCompletionsAt(4).toArray(), []);
-            });
-
-            function completionTest(documentText: string, expectedCompletions: (index: number) => qub.Completion[]): void {
-                for (let i = -1; i < documentText.length + 1; ++i) {
-                    test(`with ${qub.escapeAndQuote(documentText)} at index ${i}`, () => {
-                        const platform = new mock.Platform();
-                        const extension = new xml.Extension(platform);
-
-                        platform.setActiveTextEditor(new mock.TextEditor(new mock.TextDocument("xml", "C:/Mock/Folders/temp.xml", documentText)));
-
-                        assert.deepStrictEqual(platform.getCompletionsAt(i).toArray(), expectedCompletions(i));
-                    });
-                }
-            }
-
-            completionTest("<", (index: number) => []);
-            completionTest(`<?`, (index: number) =>
-                (2 === index) ? [new qub.Completion("xml", new qub.Span(2, 0))] :
-                    []);
-            completionTest(`<?x`, (index: number) =>
-                (2 <= index && index <= 3) ? [new qub.Completion("xml", new qub.Span(2, 1))] :
-                    []);
-            completionTest("<a", (index: number) => []);
-            completionTest("<!", (index: number) => []);
-            completionTest("<@", (index: number) => []);
-            completionTest("<?xml   ", (index: number) =>
-                (2 <= index && index <= 5) ? [new qub.Completion("xml", new qub.Span(2, 3))] :
-                    (6 <= index) ? [new qub.Completion("version", new qub.Span(index, 0))] :
-                        []);
-            completionTest("<?xml  version  ", (index: number) =>
-                (2 <= index && index <= 5) ? [new qub.Completion("xml", new qub.Span(2, 3))] :
-                    (6 === index) ? [new qub.Completion("version", new qub.Span(index, 0))] :
-                        (7 <= index && index <= 14) ? [new qub.Completion("version", new qub.Span(7, 7))] :
-                            []);
-            completionTest(`<?xml version="1.0" encoding  `, (index: number) =>
-                (2 <= index && index <= 5) ? [new qub.Completion("xml", new qub.Span(2, 3))] :
-                    (6 <= index && index <= 13) ? [new qub.Completion("version", new qub.Span(6, 7))] :
-                        (14 <= index && index <= 18) ? [new qub.Completion(`"1.0"`, new qub.Span(14, 5))] :
-                            (20 <= index && index <= 28) ? [new qub.Completion("encoding", new qub.Span(20, 8))] :
-                                []);
-            completionTest(`<?xml version="1.0" encoding =  `, (index: number) =>
-                (2 <= index && index <= 5) ? [new qub.Completion("xml", new qub.Span(2, 3))] :
-                    (6 <= index && index <= 13) ? [new qub.Completion("version", new qub.Span(6, 7))] :
-                        (14 <= index && index <= 18) ? [new qub.Completion(`"1.0"`, new qub.Span(14, 5))] :
-                            (20 <= index && index <= 28) ? [new qub.Completion("encoding", new qub.Span(20, 8))] :
-                                (30 <= index) ? [new qub.Completion(`"utf-8"`, new qub.Span(index, 0))] :
-                                    []);
-            completionTest(`<?xml version="1.0" encoding=>`, (index: number) =>
-                (2 <= index && index <= 5) ? [new qub.Completion("xml", new qub.Span(2, 3))] :
-                    (6 <= index && index <= 13) ? [new qub.Completion("version", new qub.Span(6, 7))] :
-                        (14 <= index && index <= 18) ? [new qub.Completion(`"1.0"`, new qub.Span(14, 5))] :
-                            (20 <= index && index <= 28) ? [new qub.Completion("encoding", new qub.Span(20, 8))] :
-                                (29 === index) ? [new qub.Completion(`"utf-8"`, new qub.Span(index, 0))] :
-                                    []);
-            completionTest(`<?xml version="1.0" encoding="utf-8" standalone="yes" ?>`, (index: number) =>
-                (2 <= index && index <= 5) ? [new qub.Completion("xml", new qub.Span(2, 3))] :
-                    (6 <= index && index <= 13) ? [new qub.Completion("version", new qub.Span(6, 7))] :
-                        (14 <= index && index <= 18) ? [new qub.Completion(`"1.0"`, new qub.Span(14, 5))] :
-                            (20 <= index && index <= 28) ? [new qub.Completion("encoding", new qub.Span(20, 8))] :
-                                (29 <= index && index <= 35) ? [new qub.Completion(`"utf-8"`, new qub.Span(29, 7))] :
-                                    (37 <= index && index <= 47) ? [new qub.Completion("standalone", new qub.Span(37, 10))] :
-                                        (48 <= index && index <= 52) ? [new qub.Completion(`"no"`, new qub.Span(48, 5)), new qub.Completion(`"yes"`, new qub.Span(48, 5))] :
-                                            []);
-            completionTest(`<?xml  version=  encoding=  standalone=  ?>`, (index: number) =>
-                (2 <= index && index <= 5) ? [new qub.Completion("xml", new qub.Span(2, 3))] :
-                    (6 === index) ? [new qub.Completion("version", new qub.Span(6, 0))] :
-                        (7 <= index && index <= 14) ? [new qub.Completion("version", new qub.Span(7, 7))] :
-                            (15 <= index && index <= 16) ? [new qub.Completion(`"1.0"`, new qub.Span(index, 0))] :
-                                (17 <= index && index <= 25) ? [new qub.Completion("encoding", new qub.Span(17, 8))] :
-                                    (26 <= index && index <= 27) ? [new qub.Completion(`"utf-8"`, new qub.Span(index, 0))] :
-                                        (28 <= index && index <= 38) ? [new qub.Completion("standalone", new qub.Span(28, 10))] :
-                                            (39 <= index && index <= 40) ? [new qub.Completion(`"no"`, new qub.Span(index, 0)), new qub.Completion(`"yes"`, new qub.Span(index, 0))] :
-                                                []);
-            completionTest(`<?xml  spam =  "test"  ?   >`, (index: number) =>
-                (2 <= index && index <= 5) ? [new qub.Completion("xml", new qub.Span(2, 3))] :
-                    (6 === index) ? [new qub.Completion("version", new qub.Span(6, 0))] :
-                        (7 <= index && index <= 11) ? [new qub.Completion("version", new qub.Span(7, 4))] :
-                            (22 <= index && index <= 23) ? [new qub.Completion("encoding", new qub.Span(index, 0))] :
-                                []);
-            completionTest(`<!DOCTYPE root SYSTEM "systemIdentifier" []>`, (index: number) => []);
-            completionTest(`<rootElement><childElement/></rootElement>`, (index: number) =>
-                (30 <= index && index <= 41) ? [new qub.Completion("rootElement", new qub.Span(30, 11))] :
-                    []);
-            completionTest(`<rootElement><childElement/></>`, (index: number) =>
-                (30 === index) ? [new qub.Completion("rootElement", new qub.Span(30, 0))] :
-                    []);
-            completionTest(`</rootElement>`, (index: number) => []);
-        });
-
-        suite("on format document", () => {
-            test(`with no active editor`, () => {
-                const platform = new mock.Platform();
-                const extension = new xml.Extension(platform);
-                assert.deepStrictEqual(platform.getFormattedDocument(), undefined);
-            });
-
-            test(`with non-xml active editor`, () => {
-                const platform = new mock.Platform();
-                const extension = new xml.Extension(platform);
-
-                platform.setActiveTextEditor(new mock.TextEditor(new mock.TextDocument("html", "mock-uri", "I'm not XML!")));
-
-                assert.deepStrictEqual(platform.getFormattedDocument(), undefined);
-            });
-
-            function formatTest(documentText: string, expectedFormattedText: string = documentText): void {
-                test(`with "${qub.escapeAndQuote(documentText)}"`, () => {
-                    const platform = new mock.Platform();
-                    const extension = new xml.Extension(platform);
-
-                    platform.setActiveTextEditor(new mock.TextEditor(new mock.TextDocument("xml", "mock-uri", documentText)));
-
-                    assert.deepStrictEqual(platform.getFormattedDocument(), expectedFormattedText);
-                });
-            }
-
-            formatTest("", "");
-            formatTest("<a/>");
-            formatTest("<a></a>", "<a/>");
-            formatTest("<a><b><c></c></b></a>", "<a>\n  <b>\n    <c/>\n  </b>\n</a>");
-            formatTest(`<a b="c">`);
-            formatTest(`<a    b = "c" >`, `<a b="c">`);
-            formatTest(`<a\nb="c">`, `<a\n  b="c">`);
-            formatTest(`<a\n  b="c">`);
-            formatTest(`<a\nb="c"><d\ne="f"></d></a>`, `<a\n  b="c">\n  <d\n    e="f"/>\n</a>`);
-            formatTest(`<a><b><c><d\ne="f"></d></c></b></a>`, `<a>\n  <b>\n    <c>\n      <d\n        e="f"/>\n    </c>\n  </b>\n</a>`)
-            formatTest(`<a><b><c\nd="e"/><f\ng="h"/></b></a>`, `<a>\n  <b>\n    <c\n      d="e"/>\n    <f\n      g="h"/>\n  </b>\n</a>`);
-            formatTest(`<b><c\nd="e"/><f\ng="h"/></b>`, `<b>\n  <c\n    d="e"/>\n  <f\n    g="h"/>\n</b>`);
-            formatTest(`<b><c\nd="e"/></b>`, `<b>\n  <c\n    d="e"/>\n</b>`);
-            formatTest(`<c\nd="e"/><f\ng="h"/>`, `<c\n  d="e"/>\n<f\n  g="h"/>`);
-        });
     });
 });

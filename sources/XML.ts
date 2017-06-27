@@ -1,4 +1,4 @@
-import * as qub from "Qub";
+import * as qub from "qub";
 
 /**
  * The different types of Lexes in an XML document.
@@ -52,35 +52,32 @@ export class FormatContext {
     private _indentStack = new qub.Stack<string>();
 
     constructor(private _data?: FormatContextData) {
-        if (!this._data) {
-            this._data = {};
+        if (!_data) {
+            _data = {};
+            this._data = _data;
         }
 
-        if (!qub.isDefined(this._data.alignAttributes)) {
-            this._data.alignAttributes = false;
+        if (!qub.isDefined(_data.alignAttributes)) {
+            _data.alignAttributes = false;
         }
 
-        if (!qub.isDefined(this._data.currentIndent)) {
-            this._data.currentIndent = "";
+        if (!_data.newline) {
+            _data.newline = "\n";
         }
 
-        if (!qub.isDefined(this._data.newline)) {
-            this._data.newline = "\n";
+        if (!_data.singleIndent) {
+            _data.singleIndent = "  ";
         }
 
-        if (!qub.isDefined(this._data.singleIndent)) {
-            this._data.singleIndent = "  ";
-        }
-
-        if (!qub.isDefined(this._data.currentIndent)) {
-            this._data.currentIndent = "";
+        if (!qub.isDefined(_data.currentIndent)) {
+            _data.currentIndent = "";
         }
         else {
-            this._indentStack.push(this._data.currentIndent)
+            this._indentStack.push(_data.currentIndent)
         }
 
-        if (!qub.isDefined(this._data.currentColumnIndex)) {
-            this._data.currentColumnIndex = 0;
+        if (!qub.isDefined(_data.currentColumnIndex)) {
+            _data.currentColumnIndex = 0;
         }
     }
 
@@ -202,12 +199,8 @@ export abstract class Segment {
 }
 
 export class Lex extends Segment {
-    constructor(private _basicTokens: qub.Iterable<qub.Lex>, startIndex: number, private _type: LexType) {
+    constructor(private _text: string, startIndex: number, private _type: LexType) {
         super(startIndex);
-    }
-
-    public get basicTokens(): qub.Iterable<qub.Lex> {
-        return this._basicTokens;
     }
 
     public containsIndex(index: number): boolean {
@@ -215,7 +208,7 @@ export class Lex extends Segment {
     }
 
     public toString(): string {
-        return qub.getCombinedText(this._basicTokens);
+        return this._text;
     }
 
     public getType(): LexType {
@@ -223,92 +216,92 @@ export class Lex extends Segment {
     }
 
     public getLength(): number {
-        return qub.getCombinedLength(this._basicTokens);
+        return qub.getLength(this._text);
     }
 }
 
 export function LeftAngleBracket(startIndex: number): Lex {
-    return new Lex(new qub.ArrayList([qub.LeftAngleBracket(startIndex)]), startIndex, LexType.LeftAngleBracket);
+    return new Lex("<", startIndex, LexType.LeftAngleBracket);
 }
 
 export function RightAngleBracket(startIndex: number): Lex {
-    return new Lex(new qub.ArrayList([qub.RightAngleBracket(startIndex)]), startIndex, LexType.RightAngleBracket);
+    return new Lex(">", startIndex, LexType.RightAngleBracket);
 }
 
 export function LeftSquareBracket(startIndex: number): Lex {
-    return new Lex(new qub.ArrayList([qub.LeftSquareBracket(startIndex)]), startIndex, LexType.LeftSquareBracket);
+    return new Lex("[", startIndex, LexType.LeftSquareBracket);
 }
 
 export function RightSquareBracket(startIndex: number): Lex {
-    return new Lex(new qub.ArrayList([qub.RightSquareBracket(startIndex)]), startIndex, LexType.RightSquareBracket);
+    return new Lex("]", startIndex, LexType.RightSquareBracket);
 }
 
 export function ExclamationPoint(startIndex: number): Lex {
-    return new Lex(new qub.ArrayList([qub.ExclamationPoint(startIndex)]), startIndex, LexType.ExclamationPoint);
+    return new Lex("!", startIndex, LexType.ExclamationPoint);
 }
 
 export function QuestionMark(startIndex: number): Lex {
-    return new Lex(new qub.ArrayList([qub.QuestionMark(startIndex)]), startIndex, LexType.QuestionMark);
+    return new Lex("?", startIndex, LexType.QuestionMark);
 }
 
 export function Dash(startIndex: number): Lex {
-    return new Lex(new qub.ArrayList([qub.Dash(startIndex)]), startIndex, LexType.Dash);
+    return new Lex("-", startIndex, LexType.Dash);
 }
 
 export function SingleQuote(startIndex: number): Lex {
-    return new Lex(new qub.ArrayList([qub.SingleQuote(startIndex)]), startIndex, LexType.SingleQuote);
+    return new Lex(`'`, startIndex, LexType.SingleQuote);
 }
 
 export function DoubleQuote(startIndex: number): Lex {
-    return new Lex(new qub.ArrayList([qub.DoubleQuote(startIndex)]), startIndex, LexType.DoubleQuote);
+    return new Lex(`"`, startIndex, LexType.DoubleQuote);
 }
 
 export function Equals(startIndex: number): Lex {
-    return new Lex(new qub.ArrayList([qub.EqualsSign(startIndex)]), startIndex, LexType.Equals);
+    return new Lex("=", startIndex, LexType.Equals);
 }
 
 export function Underscore(startIndex: number): Lex {
-    return new Lex(new qub.ArrayList([qub.Underscore(startIndex)]), startIndex, LexType.Underscore);
+    return new Lex("_", startIndex, LexType.Underscore);
 }
 
 export function Period(startIndex: number): Lex {
-    return new Lex(new qub.ArrayList([qub.Period(startIndex)]), startIndex, LexType.Period);
+    return new Lex(".", startIndex, LexType.Period);
 }
 
 export function Colon(startIndex: number): Lex {
-    return new Lex(new qub.ArrayList([qub.Colon(startIndex)]), startIndex, LexType.Colon);
+    return new Lex(":", startIndex, LexType.Colon);
 }
 
 export function Semicolon(startIndex: number): Lex {
-    return new Lex(new qub.ArrayList([qub.Semicolon(startIndex)]), startIndex, LexType.Semicolon);
+    return new Lex(";", startIndex, LexType.Semicolon);
 }
 
 export function Ampersand(startIndex: number): Lex {
-    return new Lex(new qub.ArrayList([qub.Ampersand(startIndex)]), startIndex, LexType.Ampersand);
+    return new Lex("&", startIndex, LexType.Ampersand);
 }
 
 export function ForwardSlash(startIndex: number): Lex {
-    return new Lex(new qub.ArrayList([qub.ForwardSlash(startIndex)]), startIndex, LexType.ForwardSlash);
+    return new Lex("/", startIndex, LexType.ForwardSlash);
 }
 
-export function Whitespace(basicTokens: qub.Iterable<qub.Lex>, startIndex: number): Lex {
-    return new Lex(basicTokens, startIndex, LexType.Whitespace);
+export function Whitespace(text: string, startIndex: number): Lex {
+    return new Lex(text, startIndex, LexType.Whitespace);
 }
 
-export function NewLine(basicToken: qub.Lex, startIndex: number): Lex {
-    return new Lex(new qub.ArrayList([basicToken]), startIndex, LexType.NewLine);
+export function NewLine(text: string, startIndex: number): Lex {
+    return new Lex(text, startIndex, LexType.NewLine);
 }
 
-export function Letters(basicToken: qub.Lex, startIndex: number): Lex {
-    return new Lex(new qub.ArrayList([basicToken]), startIndex, LexType.Letters);
+export function Letters(text: string, startIndex: number): Lex {
+    return new Lex(text, startIndex, LexType.Letters);
 }
 
-export function Digits(basicToken: qub.Lex, startIndex: number): Lex {
-    return new Lex(new qub.ArrayList([basicToken]), startIndex, LexType.Digits);
+export function Digits(text: string, startIndex: number): Lex {
+    return new Lex(text, startIndex, LexType.Digits);
 }
 
-export function Unrecognized(basicToken: qub.Lex, startIndex: number): Lex {
-    return new Lex(new qub.ArrayList([basicToken]), startIndex, LexType.Unrecognized);
+export function Unrecognized(text: string, startIndex: number): Lex {
+    return new Lex(text, startIndex, LexType.Unrecognized);
 }
 
 /**
@@ -352,23 +345,23 @@ export class Lexer extends qub.IteratorBase<Lex> {
     /**
      * Get whether the basic tokenizer currently points to a basic token or not.
      */
-    private hasCurrentBasicToken(): boolean {
+    private hasCurrentQubLex(): boolean {
         return this._basicTokenizer.hasCurrent();
     }
 
     /**
      * Get the current basic Token that the basic tokenizer is pointing at.
      */
-    private getCurrentBasicToken(): qub.Lex {
+    private getCurrentQubLex(): qub.Lex {
         return this._basicTokenizer.getCurrent();
     }
 
     /**
      * Move the basic tokenizer to the next token in its stream.
      */
-    private nextBasicToken(): boolean {
-        if (this.hasCurrentBasicToken()) {
-            this._currentBasicTokenStartIndex += this.getCurrentBasicToken().getLength();
+    private nextQubLex(): boolean {
+        if (this.hasCurrentQubLex()) {
+            this._currentBasicTokenStartIndex += this.getCurrentQubLex().getLength();
         }
 
         return this._basicTokenizer.next();
@@ -380,16 +373,16 @@ export class Lexer extends qub.IteratorBase<Lex> {
      */
     private readWhitespace(): Lex {
         const whitespaceStartIndex: number = this._currentBasicTokenStartIndex;
-        const whitespaceBasicTokens = new qub.ArrayList([this.getCurrentBasicToken()]);
+        let whitespaceText: string = this.getCurrentQubLex().toString();
 
-        while (this.nextBasicToken() &&
-            (this.getCurrentBasicToken().getType() === qub.LexType.Space ||
-                this.getCurrentBasicToken().getType() === qub.LexType.Tab ||
-                this.getCurrentBasicToken().getType() === qub.LexType.CarriageReturn)) {
-            whitespaceBasicTokens.add(this.getCurrentBasicToken());
+        while (this.nextQubLex() &&
+            (this.getCurrentQubLex().getType() === qub.LexType.Space ||
+                this.getCurrentQubLex().getType() === qub.LexType.Tab ||
+                this.getCurrentQubLex().getType() === qub.LexType.CarriageReturn)) {
+            whitespaceText += this.getCurrentQubLex().toString();
         }
 
-        return Whitespace(whitespaceBasicTokens, whitespaceStartIndex);
+        return Whitespace(whitespaceText, whitespaceStartIndex);
     }
 
     /**
@@ -397,92 +390,92 @@ export class Lexer extends qub.IteratorBase<Lex> {
      */
     public next(): boolean {
         if (!this.hasStarted()) {
-            this.nextBasicToken();
+            this.nextQubLex();
         }
 
-        if (!this.hasCurrentBasicToken()) {
+        if (!this.hasCurrentQubLex()) {
             this._currentLex = undefined;
         }
         else {
-            switch (this.getCurrentBasicToken().getType()) {
+            switch (this.getCurrentQubLex().getType()) {
                 case qub.LexType.LeftAngleBracket:
                     this._currentLex = LeftAngleBracket(this._currentBasicTokenStartIndex);
-                    this.nextBasicToken();
+                    this.nextQubLex();
                     break;
 
                 case qub.LexType.RightAngleBracket:
                     this._currentLex = RightAngleBracket(this._currentBasicTokenStartIndex);
-                    this.nextBasicToken();
+                    this.nextQubLex();
                     break;
 
                 case qub.LexType.LeftSquareBracket:
                     this._currentLex = LeftSquareBracket(this._currentBasicTokenStartIndex);
-                    this.nextBasicToken();
+                    this.nextQubLex();
                     break;
 
                 case qub.LexType.RightSquareBracket:
                     this._currentLex = RightSquareBracket(this._currentBasicTokenStartIndex);
-                    this.nextBasicToken();
+                    this.nextQubLex();
                     break;
 
                 case qub.LexType.QuestionMark:
                     this._currentLex = QuestionMark(this._currentBasicTokenStartIndex);
-                    this.nextBasicToken();
+                    this.nextQubLex();
                     break;
 
                 case qub.LexType.ExclamationPoint:
                     this._currentLex = ExclamationPoint(this._currentBasicTokenStartIndex);
-                    this.nextBasicToken();
+                    this.nextQubLex();
                     break;
 
                 case qub.LexType.Dash:
                     this._currentLex = Dash(this._currentBasicTokenStartIndex);
-                    this.nextBasicToken();
+                    this.nextQubLex();
                     break;
 
                 case qub.LexType.SingleQuote:
                     this._currentLex = SingleQuote(this._currentBasicTokenStartIndex);
-                    this.nextBasicToken();
+                    this.nextQubLex();
                     break;
 
                 case qub.LexType.DoubleQuote:
                     this._currentLex = DoubleQuote(this._currentBasicTokenStartIndex);
-                    this.nextBasicToken();
+                    this.nextQubLex();
                     break;
 
                 case qub.LexType.EqualsSign:
                     this._currentLex = Equals(this._currentBasicTokenStartIndex);
-                    this.nextBasicToken();
+                    this.nextQubLex();
                     break;
 
                 case qub.LexType.Underscore:
                     this._currentLex = Underscore(this._currentBasicTokenStartIndex);
-                    this.nextBasicToken();
+                    this.nextQubLex();
                     break;
 
                 case qub.LexType.Period:
                     this._currentLex = Period(this._currentBasicTokenStartIndex);
-                    this.nextBasicToken();
+                    this.nextQubLex();
                     break;
 
                 case qub.LexType.Colon:
                     this._currentLex = Colon(this._currentBasicTokenStartIndex);
-                    this.nextBasicToken();
+                    this.nextQubLex();
                     break;
 
                 case qub.LexType.Semicolon:
                     this._currentLex = Semicolon(this._currentBasicTokenStartIndex);
-                    this.nextBasicToken();
+                    this.nextQubLex();
                     break;
 
                 case qub.LexType.Ampersand:
                     this._currentLex = Ampersand(this._currentBasicTokenStartIndex);
-                    this.nextBasicToken();
+                    this.nextQubLex();
                     break;
 
                 case qub.LexType.ForwardSlash:
                     this._currentLex = ForwardSlash(this._currentBasicTokenStartIndex);
-                    this.nextBasicToken();
+                    this.nextQubLex();
                     break;
 
                 case qub.LexType.Space:
@@ -492,23 +485,23 @@ export class Lexer extends qub.IteratorBase<Lex> {
                     break;
 
                 case qub.LexType.NewLine:
-                    this._currentLex = NewLine(this.getCurrentBasicToken(), this._currentBasicTokenStartIndex);
-                    this.nextBasicToken();
+                    this._currentLex = NewLine(this.getCurrentQubLex().toString(), this._currentBasicTokenStartIndex);
+                    this.nextQubLex();
                     break;
 
                 case qub.LexType.Letters:
-                    this._currentLex = Letters(this.getCurrentBasicToken(), this._currentBasicTokenStartIndex);
-                    this.nextBasicToken();
+                    this._currentLex = Letters(this.getCurrentQubLex().toString(), this._currentBasicTokenStartIndex);
+                    this.nextQubLex();
                     break;
 
                 case qub.LexType.Digits:
-                    this._currentLex = Digits(this.getCurrentBasicToken(), this._currentBasicTokenStartIndex);
-                    this.nextBasicToken();
+                    this._currentLex = Digits(this.getCurrentQubLex().toString(), this._currentBasicTokenStartIndex);
+                    this.nextQubLex();
                     break;
 
                 default:
-                    this._currentLex = Unrecognized(this.getCurrentBasicToken(), this._currentBasicTokenStartIndex);
-                    this.nextBasicToken();
+                    this._currentLex = Unrecognized(this.getCurrentQubLex().toString(), this._currentBasicTokenStartIndex);
+                    this.nextQubLex();
                     break;
             }
         }
@@ -521,11 +514,11 @@ export class Lexer extends qub.IteratorBase<Lex> {
  * A group of XML segments.
  */
 export abstract class SegmentGroup extends Segment {
-    constructor(private _segments: qub.Iterable<Segment>) {
+    constructor(private _segments: qub.Indexable<Segment>) {
         super(_segments.first().startIndex);
     }
 
-    public get segments(): qub.Iterable<Segment> {
+    public get segments(): qub.Indexable<Segment> {
         return this._segments;
     }
 
@@ -608,7 +601,7 @@ export class QuotedString extends Segment {
  * An XML Name that can be used as a Tag's name or as an Attribute's name.
  */
 export class Name extends SegmentGroup {
-    constructor(lexes: qub.Iterable<Lex>) {
+    constructor(lexes: qub.Indexable<Lex>) {
         super(lexes);
     }
 
@@ -621,7 +614,7 @@ export class Name extends SegmentGroup {
  * An attribute within an XML declaration or tag.
  */
 export class Attribute extends SegmentGroup {
-    constructor(values: qub.Iterable<Segment>) {
+    constructor(values: qub.Indexable<Segment>) {
         super(values);
     }
 
@@ -707,7 +700,7 @@ export class Attribute extends SegmentGroup {
  * A generic XML tag class.
  */
 export abstract class Tag extends SegmentGroup {
-    constructor(segments: qub.Iterable<Segment>) {
+    constructor(segments: qub.Indexable<Segment>) {
         super(segments);
     }
 
@@ -797,7 +790,7 @@ export abstract class Tag extends SegmentGroup {
 }
 
 export abstract class TagWithAttributes extends Tag {
-    constructor(values: qub.Iterable<Segment>) {
+    constructor(values: qub.Indexable<Segment>) {
         super(values);
     }
 
@@ -811,25 +804,25 @@ export abstract class TagWithAttributes extends Tag {
      */
     public get attributes(): qub.Iterable<Attribute> {
         return this.segments
-            .where((segment) => segment instanceof Attribute)
-            .map((segment) => segment as Attribute);
+            .where((segment: Segment) => segment instanceof Attribute)
+            .map((segment: Segment) => segment as Attribute);
     }
 }
 
 export class Declaration extends TagWithAttributes {
-    constructor(segments: qub.Iterable<Segment>) {
+    constructor(segments: qub.Indexable<Segment>) {
         super(segments);
     }
 
     public get leftQuestionMark(): Lex {
-        return this.segments.getElement(1) as Lex;
+        return this.segments.get(1) as Lex;
     }
 
     /**
      * Get the name of this Declaration.
      */
     public getName(): Name {
-        const thirdSegment: Segment = this.segments.getElement(2);
+        const thirdSegment: Segment = this.segments.get(2);
         return thirdSegment instanceof Name ? thirdSegment : undefined;
     }
 
@@ -876,28 +869,28 @@ export class Declaration extends TagWithAttributes {
 }
 
 export class StartTag extends TagWithAttributes {
-    constructor(values: qub.Iterable<Segment>) {
+    constructor(values: qub.Indexable<Segment>) {
         super(values);
     }
 
     public getName(): Name {
-        return this.segments.getElement(1) as Name;
+        return this.segments.get(1) as Name;
     }
 }
 
 export class EndTag extends Tag {
-    constructor(segments: qub.Iterable<Segment>) {
+    constructor(segments: qub.Indexable<Segment>) {
         super(segments);
     }
 
     public get forwardSlash(): Lex {
-        return this.segments.getElement(1) as Lex;
+        return this.segments.get(1) as Lex;
     }
 
     public get name(): Name {
         let name: Name;
 
-        const thirdSegment: Segment = this.segments.getElement(2);
+        const thirdSegment: Segment = this.segments.get(2);
         if (thirdSegment instanceof Name) {
             name = thirdSegment;
         }
@@ -907,12 +900,12 @@ export class EndTag extends Tag {
 }
 
 export class EmptyElement extends TagWithAttributes {
-    constructor(segments: qub.Iterable<Segment>) {
+    constructor(segments: qub.Indexable<Segment>) {
         super(segments);
     }
 
     public getName(): Name {
-        return this.segments.getElement(1) as Name;
+        return this.segments.get(1) as Name;
     }
 
     /**
@@ -924,7 +917,7 @@ export class EmptyElement extends TagWithAttributes {
 }
 
 export class UnrecognizedTag extends Tag {
-    constructor(segments: qub.Iterable<Segment>) {
+    constructor(segments: qub.Indexable<Segment>) {
         super(segments);
     }
 }
@@ -933,7 +926,7 @@ export class UnrecognizedTag extends Tag {
  * An document type definition that is defined within an XML document's DOCTYPE tag.
  */
 export class InternalDefinition extends SegmentGroup {
-    constructor(segments: qub.Iterable<Segment>) {
+    constructor(segments: qub.Indexable<Segment>) {
         super(segments);
     }
 
@@ -966,7 +959,7 @@ export class InternalDefinition extends SegmentGroup {
 }
 
 export class DOCTYPE extends Tag {
-    constructor(segments: qub.Iterable<Segment>) {
+    constructor(segments: qub.Indexable<Segment>) {
         super(segments);
     }
 
@@ -974,12 +967,12 @@ export class DOCTYPE extends Tag {
      * Get the document type declaration's name segment ('DOCTYPE').
      */
     public get name(): Segment {
-        return this.segments.getElement(2);
+        return this.segments.get(2);
     }
 }
 
 export class Comment extends Tag {
-    constructor(segments: qub.Iterable<Segment>) {
+    constructor(segments: qub.Indexable<Segment>) {
         super(segments);
     }
 
@@ -1029,7 +1022,7 @@ export class Comment extends Tag {
  * See http://www.com/axml/target.html#sec-pi for more information.
  */
 export class ProcessingInstruction extends Tag {
-    constructor(segments: qub.Iterable<Segment>) {
+    constructor(segments: qub.Indexable<Segment>) {
         super(segments);
     }
 
@@ -1039,7 +1032,7 @@ export class ProcessingInstruction extends Tag {
     public get name(): Name {
         let result: Name;
 
-        const thirdSegment: Segment = this.segments.getElement(2);
+        const thirdSegment: Segment = this.segments.get(2);
         if (thirdSegment instanceof Name) {
             result = thirdSegment;
         }
@@ -1049,7 +1042,7 @@ export class ProcessingInstruction extends Tag {
 }
 
 export class CDATA extends Tag {
-    constructor(segments: qub.Iterable<Segment>) {
+    constructor(segments: qub.Indexable<Segment>) {
         super(segments);
     }
 
@@ -1077,7 +1070,7 @@ export class CDATA extends Tag {
  * A sequence of characters in an XML document that are not part of an XML tag.
  */
 export class Text extends SegmentGroup {
-    constructor(segments: qub.Iterable<Segment>) {
+    constructor(segments: qub.Indexable<Segment>) {
         super(segments);
     }
 
@@ -1804,7 +1797,7 @@ export class Tokenizer extends qub.IteratorBase<Segment> {
 
         if (!rightAngleBracket) {
             if (!rightQuestionMark) {
-                this.addIssue(Issues.missingProcessingInstructionRightQuestionMark(tagSegments.getElement(1).span));
+                this.addIssue(Issues.missingProcessingInstructionRightQuestionMark(tagSegments.get(1).span));
             }
             this.addIssue(Issues.missingProcessingInstructionRightAngleBracket(tagSegments.first().span));
         }
@@ -2005,7 +1998,7 @@ export class Tokenizer extends qub.IteratorBase<Segment> {
 
         if (!rightAngleBracket) {
             if (!rightQuestionMark) {
-                this.addIssue(Issues.missingDeclarationRightQuestionMark(tagSegments.getElement(1).span));
+                this.addIssue(Issues.missingDeclarationRightQuestionMark(tagSegments.get(1).span));
             }
             this.addIssue(Issues.missingDeclarationRightAngleBracket(tagSegments.first().span));
         }
@@ -2047,7 +2040,7 @@ export class Tokenizer extends qub.IteratorBase<Segment> {
 
         let rightAngleBracket: Lex;
         if (!this.hasCurrentLex()) {
-            this.addIssue(Issues.missingDOCTYPERootElementName(tagSegments.getElement(2).span));
+            this.addIssue(Issues.missingDOCTYPERootElementName(tagSegments.get(2).span));
         }
         else {
             switch (this.getCurrentLex().getType()) {
@@ -2257,7 +2250,7 @@ export class Tokenizer extends qub.IteratorBase<Segment> {
 
             if (!rightAngleBracket) {
                 if (closingDashCount === 0) {
-                    this.addIssue(Issues.missingCommentClosingDashes(new qub.Span(tagSegments.getElement(2).startIndex, 2)));
+                    this.addIssue(Issues.missingCommentClosingDashes(new qub.Span(tagSegments.get(2).startIndex, 2)));
                 }
                 else if (closingDashCount === 1) {
                     this.addIssue(Issues.missingCommentSecondClosingDash(tagSegments.last().span));
@@ -2328,7 +2321,7 @@ export class Tokenizer extends qub.IteratorBase<Segment> {
 
                         if (!rightAngleBracket) {
                             if (closingRightSquareBracketCount === 0) {
-                                this.addIssue(Issues.missingCDATARightSquareBrackets(tagSegments.getElement(4).span));
+                                this.addIssue(Issues.missingCDATARightSquareBrackets(tagSegments.get(4).span));
                             }
                             else if (closingRightSquareBracketCount === 1) {
                                 this.addIssue(Issues.missingCDATASecondRightSquareBracket(tagSegments.last().span));
@@ -2504,7 +2497,7 @@ export class Tokenizer extends qub.IteratorBase<Segment> {
  * an EndTag.
  */
 export class Element extends SegmentGroup {
-    constructor(segments: qub.Iterable<Segment>) {
+    constructor(segments: qub.Indexable<Segment>) {
         super(segments);
     }
 
@@ -2526,8 +2519,8 @@ export class Element extends SegmentGroup {
                 }
             }
         }
-        else if (this.children.getCount() === 1 && this.children.getElement(0) instanceof Text) {
-            const textChild: Text = this.children.getElement(0) as Text;
+        else if (this.children.getCount() === 1 && this.children.get(0) instanceof Text) {
+            const textChild: Text = this.children.get(0) as Text;
 
             const childFormattedText: string = textChild.format(context);
             result += childFormattedText;
@@ -2609,8 +2602,8 @@ export class Element extends SegmentGroup {
     /**
      * Get the child Segments of this Element.
      */
-    public get children(): qub.Iterable<Segment> {
-        let result: qub.Iterable<Segment> = this.segments.skip(1);
+    public get children(): qub.Indexable<Segment> {
+        let result: qub.Indexable<Segment> = this.segments.skip(1);
         if (this.endTag) {
             result = result.take(this.segments.getCount() - 2);
         }
