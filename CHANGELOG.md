@@ -1,3 +1,7 @@
+### 1.0.3 (2017-07-15)
+
+- Lowercase xml main file
+
 ### 1.0.2 (2017-07-15)
 
 - Update qub dependency version
