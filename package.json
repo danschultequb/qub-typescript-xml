@@ -50,6 +50,6 @@
     "typescript": "2.4.1"
   },
   "dependencies": {
-    "qub": "^1.2.6"
+    "qub": "1.2.6"
   }
 }
