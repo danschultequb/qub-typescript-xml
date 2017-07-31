@@ -603,7 +603,7 @@ export class QuotedString extends Segment {
  * @param lhs The first Name or string to compare.
  * @param rhs The second Name or string to compare.
  */
-function matches(lhs: Name | string, rhs: Name | string): boolean {
+export function matches(lhs: Name | string, rhs: Name | string): boolean {
     return lhs && rhs ? qub.toLowerCase(lhs.toString()) === qub.toLowerCase(rhs.toString()) : false;
 }
 
@@ -3126,7 +3126,7 @@ export class ElementSchema<ElementType,ExtraPropertiesType = Object> {
      * schemas or the additionalChildElements schema (if it is defined).
      */
     public get childElements(): qub.Iterable<ChildElementSchema<ElementType>> {
-        return new qub.ArrayList<ChildElementSchema<ElementType>>(this._contents.childElements);
+        return new qub.SingleLinkList<ChildElementSchema<ElementType>>(this._contents.childElements);
     }
 
     /**
