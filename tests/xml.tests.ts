@@ -4136,7 +4136,6 @@ suite("XML", () => {
         test("with required attributes", () => {
             const schema = new xml.ElementSchema<number>({
                 name: "test",
-                validateFunction: (element: xml.Element | xml.EmptyElement, issues: qub.List<qub.Issue>) => { },
                 attributes: [
                     new xml.AttributeSchema({
                         name: "a1"
@@ -4154,7 +4153,6 @@ suite("XML", () => {
             assert.deepStrictEqual(schema.name, "test");
             assert.deepStrictEqual(schema.matchesName(undefined), false);
             assert.deepStrictEqual(schema.matchesName(parseName("test")), true);
-            assert.notDeepStrictEqual(schema.validateFunction, undefined);
             assert.deepStrictEqual(schema.attributes.toArray(), [
                 new xml.AttributeSchema({
                     name: "a1"
@@ -4176,7 +4174,6 @@ suite("XML", () => {
         test("getAttributeSchema()", () => {
             const schema = new xml.ElementSchema<number>({
                 name: "test",
-                validateFunction: (element: xml.Element | xml.EmptyElement, issues: qub.List<qub.Issue>) => { },
                 attributes: [
                     new xml.AttributeSchema({
                         name: "a1"
@@ -4205,8 +4202,7 @@ suite("XML", () => {
         suite("allowAllAttributes", () => {
             test("with no allowAllAttributes defined", () => {
                 const schema = new xml.ElementSchema<number>({
-                    name: "test",
-                    validateFunction: (element: xml.Element | xml.EmptyElement, issues: qub.List<qub.Issue>) => { }
+                    name: "test"
                 });
                 assert.deepStrictEqual(schema.allowAllAttributes, false);
             });
@@ -4214,7 +4210,6 @@ suite("XML", () => {
             test("with false", () => {
                 const schema = new xml.ElementSchema<number>({
                     name: "test",
-                    validateFunction: (element: xml.Element | xml.EmptyElement, issues: qub.List<qub.Issue>) => { },
                     allowAllAttributes: false
                 });
                 assert.deepStrictEqual(schema.allowAllAttributes, false);
@@ -4223,7 +4218,6 @@ suite("XML", () => {
             test("with true", () => {
                 const schema = new xml.ElementSchema<number>({
                     name: "test",
-                    validateFunction: (element: xml.Element | xml.EmptyElement, issues: qub.List<qub.Issue>) => { },
                     allowAllAttributes: true
                 });
                 assert.deepStrictEqual(schema.allowAllAttributes, true);
@@ -4233,8 +4227,7 @@ suite("XML", () => {
         suite("additionalChildElements", () => {
             test("with no additionalChildElements defined", () => {
                 const schema = new xml.ElementSchema<number>({
-                    name: "test",
-                    validateFunction: (element: xml.Element | xml.EmptyElement, issues: qub.List<qub.Issue>) => { }
+                    name: "test"
                 });
                 assert.deepStrictEqual(schema.additionalChildElements, undefined);
             });
@@ -4242,7 +4235,6 @@ suite("XML", () => {
             test("with additionalChildElements defined", () => {
                 const schema = new xml.ElementSchema<number>({
                     name: "test",
-                    validateFunction: (element: xml.Element | xml.EmptyElement, issues: qub.List<qub.Issue>) => { },
                     additionalChildElements: new xml.ChildElementSchema<number>({
                         type: 3
                     })
@@ -4254,8 +4246,7 @@ suite("XML", () => {
         suite("childElements", () => {
             test("with no childElements defined", () => {
                 const schema = new xml.ElementSchema<number>({
-                    name: "test",
-                    validateFunction: (element: xml.Element | xml.EmptyElement, issues: qub.List<qub.Issue>) => { }
+                    name: "test"
                 });
                 assert.deepStrictEqual(schema.childElements.toArray(), []);
             });
@@ -4263,7 +4254,6 @@ suite("XML", () => {
             test("with empty childElements defined", () => {
                 const schema = new xml.ElementSchema<number>({
                     name: "test",
-                    validateFunction: (element: xml.Element | xml.EmptyElement, issues: qub.List<qub.Issue>) => { },
                     childElements: []
                 });
                 assert.deepStrictEqual(schema.childElements.toArray(), []);
@@ -4272,7 +4262,6 @@ suite("XML", () => {
             test("with childElements defined", () => {
                 const schema = new xml.ElementSchema<number>({
                     name: "test",
-                    validateFunction: (element: xml.Element | xml.EmptyElement, issues: qub.List<qub.Issue>) => { },
                     childElements: [
                         new xml.ChildElementSchema<number>({
                             type: 1
@@ -4290,8 +4279,7 @@ suite("XML", () => {
         suite("requiredChildElements", () => {
             test("with no childElements defined", () => {
                 const schema = new xml.ElementSchema<number>({
-                    name: "test",
-                    validateFunction: (element: xml.Element | xml.EmptyElement, issues: qub.List<qub.Issue>) => { }
+                    name: "test"
                 });
                 assert.deepStrictEqual(schema.requiredChildElements.toArray(), []);
             });
@@ -4299,7 +4287,6 @@ suite("XML", () => {
             test("with empty childElements defined", () => {
                 const schema = new xml.ElementSchema<number>({
                     name: "test",
-                    validateFunction: (element: xml.Element | xml.EmptyElement, issues: qub.List<qub.Issue>) => { },
                     childElements: []
                 });
                 assert.deepStrictEqual(schema.requiredChildElements.toArray(), []);
@@ -4308,7 +4295,6 @@ suite("XML", () => {
             test("with no required childElements defined", () => {
                 const schema = new xml.ElementSchema<number>({
                     name: "test",
-                    validateFunction: (element: xml.Element | xml.EmptyElement, issues: qub.List<qub.Issue>) => { },
                     childElements: [
                         new xml.ChildElementSchema<number>({
                             type: 1
@@ -4321,7 +4307,6 @@ suite("XML", () => {
             test("with required childElements defined", () => {
                 const schema = new xml.ElementSchema<number>({
                     name: "test",
-                    validateFunction: (element: xml.Element | xml.EmptyElement, issues: qub.List<qub.Issue>) => { },
                     childElements: [
                         new xml.ChildElementSchema<number>({
                             type: 1,
@@ -4341,8 +4326,7 @@ suite("XML", () => {
         suite("mustBeLastChildElement", () => {
             test("with no childElements defined", () => {
                 const schema = new xml.ElementSchema<number>({
-                    name: "test",
-                    validateFunction: (element: xml.Element | xml.EmptyElement, issues: qub.List<qub.Issue>) => { }
+                    name: "test"
                 });
                 assert.deepStrictEqual(schema.mustBeLastChildElement, undefined);
             });
@@ -4350,7 +4334,6 @@ suite("XML", () => {
             test("with empty childElements defined", () => {
                 const schema = new xml.ElementSchema<number>({
                     name: "test",
-                    validateFunction: (element: xml.Element | xml.EmptyElement, issues: qub.List<qub.Issue>) => { },
                     childElements: []
                 });
                 assert.deepStrictEqual(schema.mustBeLastChildElement, undefined);
@@ -4359,7 +4342,6 @@ suite("XML", () => {
             test("with no mustBeLastChildElement defined", () => {
                 const schema = new xml.ElementSchema<number>({
                     name: "test",
-                    validateFunction: (element: xml.Element | xml.EmptyElement, issues: qub.List<qub.Issue>) => { },
                     childElements: [
                         new xml.ChildElementSchema<number>({
                             type: 1
@@ -4372,7 +4354,6 @@ suite("XML", () => {
             test("with mustBeLastChildElement defined", () => {
                 const schema = new xml.ElementSchema<number>({
                     name: "test",
-                    validateFunction: (element: xml.Element | xml.EmptyElement, issues: qub.List<qub.Issue>) => { },
                     childElements: [
                         new xml.ChildElementSchema<number>({
                             type: 1,
@@ -4392,8 +4373,7 @@ suite("XML", () => {
         suite("atMostOneChildElements", () => {
             test("with no childElements defined", () => {
                 const schema = new xml.ElementSchema<number>({
-                    name: "test",
-                    validateFunction: (element: xml.Element | xml.EmptyElement, issues: qub.List<qub.Issue>) => { }
+                    name: "test"
                 });
                 assert.deepStrictEqual(schema.atMostOneChildElements.toArray(), []);
             });
@@ -4401,7 +4381,6 @@ suite("XML", () => {
             test("with empty childElements defined", () => {
                 const schema = new xml.ElementSchema<number>({
                     name: "test",
-                    validateFunction: (element: xml.Element | xml.EmptyElement, issues: qub.List<qub.Issue>) => { },
                     childElements: []
                 });
                 assert.deepStrictEqual(schema.atMostOneChildElements.toArray(), []);
@@ -4410,7 +4389,6 @@ suite("XML", () => {
             test("with no mustBeLastChildElement defined", () => {
                 const schema = new xml.ElementSchema<number>({
                     name: "test",
-                    validateFunction: (element: xml.Element | xml.EmptyElement, issues: qub.List<qub.Issue>) => { },
                     childElements: [
                         new xml.ChildElementSchema<number>({
                             type: 1
@@ -4423,7 +4401,6 @@ suite("XML", () => {
             test("with mustBeLastChildElement defined", () => {
                 const schema = new xml.ElementSchema<number>({
                     name: "test",
-                    validateFunction: (element: xml.Element | xml.EmptyElement, issues: qub.List<qub.Issue>) => { },
                     childElements: [
                         new xml.ChildElementSchema<number>({
                             type: 1,
@@ -4443,8 +4420,7 @@ suite("XML", () => {
         suite("dontValidateChildElements", () => {
             test("with no dontValidateChildElements defined", () => {
                 const schema = new xml.ElementSchema<number>({
-                    name: "test",
-                    validateFunction: (element: xml.Element | xml.EmptyElement, issues: qub.List<qub.Issue>) => { }
+                    name: "test"
                 });
                 assert.deepStrictEqual(schema.dontValidateChildElements, false);
             });
@@ -4452,7 +4428,6 @@ suite("XML", () => {
             test("with false dontValidateChildElements defined", () => {
                 const schema = new xml.ElementSchema<number>({
                     name: "test",
-                    validateFunction: (element: xml.Element | xml.EmptyElement, issues: qub.List<qub.Issue>) => { },
                     dontValidateChildElements: false
                 });
                 assert.deepStrictEqual(schema.dontValidateChildElements, false);
@@ -4461,7 +4436,6 @@ suite("XML", () => {
             test("with true dontValidateChildElements defined", () => {
                 const schema = new xml.ElementSchema<number>({
                     name: "test",
-                    validateFunction: (element: xml.Element | xml.EmptyElement, issues: qub.List<qub.Issue>) => { },
                     dontValidateChildElements: true
                 });
                 assert.deepStrictEqual(schema.dontValidateChildElements, true);
@@ -4471,8 +4445,7 @@ suite("XML", () => {
         suite("allowTextChildElements", () => {
             test("with no allowTextChildElements defined", () => {
                 const schema = new xml.ElementSchema<number>({
-                    name: "test",
-                    validateFunction: (element: xml.Element | xml.EmptyElement, issues: qub.List<qub.Issue>) => { }
+                    name: "test"
                 });
                 assert.deepStrictEqual(schema.allowTextChildElements, false);
             });
@@ -4480,7 +4453,6 @@ suite("XML", () => {
             test("with false allowTextChildElements defined", () => {
                 const schema = new xml.ElementSchema<number>({
                     name: "test",
-                    validateFunction: (element: xml.Element | xml.EmptyElement, issues: qub.List<qub.Issue>) => { },
                     allowTextChildElements: false
                 });
                 assert.deepStrictEqual(schema.allowTextChildElements, false);
@@ -4489,7 +4461,6 @@ suite("XML", () => {
             test("with true allowTextChildElements defined", () => {
                 const schema = new xml.ElementSchema<number>({
                     name: "test",
-                    validateFunction: (element: xml.Element | xml.EmptyElement, issues: qub.List<qub.Issue>) => { },
                     allowTextChildElements: true
                 });
                 assert.deepStrictEqual(schema.allowTextChildElements, true);
@@ -4499,8 +4470,7 @@ suite("XML", () => {
         suite("extraProperties", () => {
             test("with no extraProperties defined", () => {
                 const schema = new xml.ElementSchema<number>({
-                    name: "test",
-                    validateFunction: (element: xml.Element | xml.EmptyElement, issues: qub.List<qub.Issue>) => { }
+                    name: "test"
                 });
                 assert.deepStrictEqual(schema.extraProperties, undefined);
             });
@@ -4508,7 +4478,6 @@ suite("XML", () => {
             test("with undefined extraProperties defined", () => {
                 const schema = new xml.ElementSchema<number>({
                     name: "test",
-                    validateFunction: (element: xml.Element | xml.EmptyElement, issues: qub.List<qub.Issue>) => { },
                     extraProperties: undefined
                 });
                 assert.deepStrictEqual(schema.extraProperties, undefined);
@@ -4517,7 +4486,6 @@ suite("XML", () => {
             test("with null extraProperties defined", () => {
                 const schema = new xml.ElementSchema<number>({
                     name: "test",
-                    validateFunction: (element: xml.Element | xml.EmptyElement, issues: qub.List<qub.Issue>) => { },
                     extraProperties: null
                 });
                 assert.deepStrictEqual(schema.extraProperties, null);
@@ -4526,7 +4494,6 @@ suite("XML", () => {
             test("with extraProperties defined", () => {
                 const schema = new xml.ElementSchema<number>({
                     name: "test",
-                    validateFunction: (element: xml.Element | xml.EmptyElement, issues: qub.List<qub.Issue>) => { },
                     extraProperties: {
                         test: true
                     }

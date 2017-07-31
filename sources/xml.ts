@@ -3009,10 +3009,6 @@ export interface ElementSchemaContents<ElementType,ExtraPropertiesType = Object>
      */
     name: string;
     /**
-     * This schema's function that is used to validate elements.
-     */
-    validateFunction: (xmlElement: Element | EmptyElement, issues: qub.List<qub.Issue>) => void;
-    /**
      * The attributes that this schema expects to find on an element.
      */
     attributes?: AttributeSchema[];
@@ -3068,13 +3064,6 @@ export class ElementSchema<ElementType,ExtraPropertiesType = Object> {
      */
     public matchesName(name: Name): boolean {
         return matches(this.name, name);
-    }
-
-    /**
-     * Get this schema's function that is used to validate elements.
-     */
-    public get validateFunction(): (xmlElement: Element | EmptyElement, issues: qub.List<qub.Issue>) => void {
-        return this._contents.validateFunction;
     }
 
     /**
