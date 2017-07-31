@@ -598,6 +598,16 @@ export class QuotedString extends Segment {
 }
 
 /**
+ * Check if the provided Names or strings have the same value based on XML name equality. This means
+ * that the names will be the case-insensitive equal.
+ * @param lhs The first Name or string to compare.
+ * @param rhs The second Name or string to compare.
+ */
+export function matches(lhs: Name | string, rhs: Name | string): boolean {
+    return lhs && rhs ? qub.toLowerCase(lhs.toString()) === qub.toLowerCase(rhs.toString()) : false;
+}
+
+/**
  * An XML Name that can be used as a Tag's name or as an Attribute's name.
  */
 export class Name extends SegmentGroup {
@@ -607,6 +617,10 @@ export class Name extends SegmentGroup {
 
     public containsIndex(index: number): boolean {
         return this.startIndex <= index && index <= this.afterEndIndex;
+    }
+
+    public matches(name: Name | string): boolean {
+        return matches(this, name);
     }
 }
 
@@ -2840,4 +2854,312 @@ export function parse(text: string): Document {
     }
 
     return new Document(documentSegments, issues);
+}
+
+/**
+ * A schema that can be applied to an attribute in an Element.
+ */
+export interface AttributeSchemaContents<ExtraPropertiesType = Object> {
+    /**
+     * The expected name of the attribute.
+     */
+    name: string;
+    /**
+     * Whether or not an attribute that matches this schema is required.
+     */
+    required?: boolean;
+    /**
+     * If defined, the parent element must define an attribute that matches this schema if no
+     * attribute exists with this name.
+     */
+    requiredIfNotDefined?: string;
+    /**
+     * If defined, the parent element must not define an attribute that matches this schema if an
+     * attribute exists with this name.
+     */
+    notWith?: string;
+    /**
+     * The optional extra properties that can be assigned to this schema.
+     */
+    extraProperties?: ExtraPropertiesType;
+}
+
+/**
+ * A schema that can be applied to an attribute in an Element.
+ */
+export class AttributeSchema<ExtraPropertiesType = Object> {
+    constructor(private _contents: AttributeSchemaContents<ExtraPropertiesType>) {
+    }
+
+    /**
+     * The expected name of the attribute.
+     */
+    public get name(): string {
+        return this._contents.name;
+    }
+
+    /**
+     * Whether or not an attribute that matches this schema is required.
+     */
+    public get required(): boolean {
+        return this._contents.required ? true : false;
+    }
+
+    /**
+     * If defined, the parent element must define an attribute that matches this schema if no
+     * attribute exists with this name.
+     */
+    public get requiredIfNotDefined(): string {
+        return this._contents.requiredIfNotDefined;
+    }
+
+    /**
+     * If defined, the parent element must not define an attribute that matches this schema if an
+     * attribute exists with this name.
+     */
+    public get notWith(): string {
+        return this._contents.notWith;
+    }
+
+    /**
+     * The optional extra properties that can be assigned to this schema.
+     */
+    public get extraProperties(): ExtraPropertiesType {
+        return this._contents.extraProperties;
+    }
+}
+
+/**
+ * A schema that can be applied to the child of an XML Element. This schema really functions more
+ * like a pointer to an ElementSchema.
+ * The ElementType is the language specific unique identifier for a matching element's type. We use
+ * this instead of just using the name because some elements can have different schemas based on
+ * where they exist in an XML document.
+ */
+export interface ChildElementSchemaContents<ElementType> {
+    /**
+     * The type of the child element that matches this schema.
+     */
+    type: ElementType,
+    /**
+     * Whether or not this schema is required by the parent ElementSchema.
+     */
+    required?: boolean;
+    /**
+     * Whether or not the parent ElementSchema can have only one element that matches this schema.
+     */
+    atMostOne?: boolean;
+    /**
+     * Whether or not an element that matches this schema must be the last child element of an
+     * element that matches the parent ElementSchema.
+     */
+    mustBeLast?: boolean;
+}
+
+/**
+ * A schema that can be applied to the child of an XML Element. This schema really functions more
+ * like a pointer to an ElementSchema.
+ * The ElementType is the language specific unique identifier for a matching element's type. We use
+ * this instead of just using the name because some elements can have different schemas based on
+ * where they exist in an XML document.
+ */
+export class ChildElementSchema<ElementType> {
+    constructor(private _contents: ChildElementSchemaContents<ElementType>) {
+    }
+
+    /**
+     * The type of the child element that matches this schema.
+     */
+    public get type(): ElementType {
+        return this._contents.type;
+    }
+
+    /**
+     * Whether or not this schema is required by the parent ElementSchema.
+     */
+    public get required(): boolean {
+        return this._contents.required ? true : false;
+    }
+
+    /**
+     * Whether or not the parent ElementSchema can have only one element that matches this schema.
+     */
+    public get atMostOne(): boolean {
+        return this._contents.atMostOne ? true : false;
+    }
+
+    /**
+     * Whether or not an element that matches this schema must be the last child element of an
+     * element that matches the parent ElementSchema.
+     */
+    public get mustBeLast(): boolean {
+        return this._contents.mustBeLast ? true : false;
+    }
+}
+
+/**
+ * A schema that can be applied to an XML Element or EmptyElement.
+ * The ElementType is the language specific unique identifier for a matching element's type. We use
+ * this instead of just using the name because some elements can have different schemas based on
+ * where they exist in an XML document.
+ */
+export interface ElementSchemaContents<ElementType,ExtraPropertiesType = Object> {
+    /**
+     * The expected element name.
+     */
+    name: string;
+    /**
+     * The attributes that this schema expects to find on an element.
+     */
+    attributes?: AttributeSchema[];
+    /**
+     * Whether or not this schema allows all attributes.
+     */
+    allowAllAttributes?: boolean;
+    /**
+     * If defined, then all of an element's child elements that don't match any of the childElements
+     * schemas must match this schema.
+     */
+    additionalChildElements?: ChildElementSchema<ElementType>;
+    /**
+     * If defined and not empty, then all of an element's child elements must match one of these
+     * schemas or the additionalChildElements schema (if it is defined).
+     */
+    childElements?: ChildElementSchema<ElementType>[];
+    /**
+     * Whether or not an element's child elements will be validated for this schema.
+     */
+    dontValidateChildElements?: boolean;
+    /**
+     * Whether or not text child elements are allowed by this schema.
+     */
+    allowTextChildElements?: boolean;
+    /**
+     * The optional extra properties that can be assigned to this schema. These could be used for
+     * editor specific data, such as a description of this schema.
+     */
+    extraProperties?: ExtraPropertiesType;
+}
+
+/**
+ * A schema that can be applied to an XML Element or EmptyElement.
+ * The ElementType is the language specific unique identifier for a matching element's type. We use
+ * this instead of just using the name because some elements can have different schemas based on
+ * where they exist in an XML document.
+ */
+export class ElementSchema<ElementType,ExtraPropertiesType = Object> {
+    constructor(private _contents: ElementSchemaContents<ElementType,ExtraPropertiesType>) {
+    }
+
+    /**
+     * The expected element name.
+     */
+    public get name(): string {
+        return this._contents.name;
+    }
+
+    /**
+     * Check whether the provided name matches against this schema's expected name.
+     * @param name The name to compare against this schema's expected name.
+     */
+    public matchesName(name: Name): boolean {
+        return matches(this.name, name);
+    }
+
+    /**
+     * Get the attributes that this schema expects to find on an element.
+     */
+    public get attributes(): qub.Iterable<AttributeSchema> {
+        return new qub.ArrayList<AttributeSchema>(this._contents.attributes);
+    }
+
+    /**
+     * Get the names of the attributes that this schema will allow on an element.
+     */
+    public get attributeNames(): qub.Iterable<string> {
+        return this.attributes.map((allowedAttribute: AttributeSchema) => allowedAttribute.name);
+    }
+
+    /**
+     * Get the attributes that this schema requires exist on an element.
+     */
+    public get requiredAttributes(): qub.Iterable<AttributeSchema> {
+        return this.attributes.where((allowedAttribute: AttributeSchema) => allowedAttribute.required || allowedAttribute.requiredIfNotDefined ? true : false);
+    }
+
+    /**
+     * Get the AttributeSchema within this schema that expects the provided attributeName.
+     * @param attributeName The name of the attribute to look for.
+     */
+    public getAttributeSchema(attributeName: string): AttributeSchema {
+        return this.attributes.first((allowedAttribute: AttributeSchema) => matches(allowedAttribute.name, attributeName));
+    }
+
+    /**
+     * Whether or not this schema allows all attributes.
+     */
+    public get allowAllAttributes(): boolean {
+        return this._contents.allowAllAttributes ? true : false;
+    }
+
+    /**
+     * If defined, then all of an element's child elements that don't match any of the childElements
+     * schemas must match this schema.
+     */
+    public get additionalChildElements(): ChildElementSchema<ElementType> {
+        return this._contents.additionalChildElements;
+    }
+
+    /**
+     * If defined and not empty, then all of an element's child elements must match one of these
+     * schemas or the additionalChildElements schema (if it is defined).
+     */
+    public get childElements(): qub.Iterable<ChildElementSchema<ElementType>> {
+        return new qub.SingleLinkList<ChildElementSchema<ElementType>>(this._contents.childElements);
+    }
+
+    /**
+     * The ChildElementSchemas of the child elements that an element must have to validate against
+     * this schema.
+     */
+    public get requiredChildElements(): qub.Iterable<ChildElementSchema<ElementType>> {
+        return this.childElements.where((allowedChildElement: ChildElementSchema<ElementType>) => allowedChildElement.required);
+    }
+
+    /**
+     * If defined, then the last child element (if there are any) must validate against this
+     * ChildElementSchema.
+     */
+    public get mustBeLastChildElement(): ChildElementSchema<ElementType> {
+        return this.childElements.first((allowedChildElement: ChildElementSchema<ElementType>) => allowedChildElement.mustBeLast);
+    }
+
+    /**
+     * If defined and not empty, then an element must have at least one element that validates
+     * against each of these ChildElementSchemas.
+     */
+    public get atMostOneChildElements(): qub.Iterable<ChildElementSchema<ElementType>> {
+        return this.childElements.where((allowedChildElement: ChildElementSchema<ElementType>) => allowedChildElement.atMostOne);
+    }
+
+    /**
+     * Whether or not an element's child elements will be validated for this schema.
+     */
+    public get dontValidateChildElements(): boolean {
+        return this._contents.dontValidateChildElements ? true : false;
+    }
+
+    /**
+     * Whether or not text child elements are allowed by this schema.
+     */
+    public get allowTextChildElements(): boolean {
+        return this._contents.allowTextChildElements ? true : false;
+    }
+
+    /**
+     * The optional extra properties that can be assigned to this schema.
+     */
+    public get extraProperties(): ExtraPropertiesType {
+        return this._contents.extraProperties;
+    }
 }
