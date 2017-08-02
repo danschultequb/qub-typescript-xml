@@ -1,6 +1,6 @@
 {
   "name": "qub-xml",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "A collection of classes and functions for interacting with XML documents",
   "main": "output/sources/xml",
   "typings": "output/sources/xml",
@@ -50,6 +50,6 @@
     "typescript": "2.4.1"
   },
   "dependencies": {
-    "qub": "1.2.6"
+    "qub": "1.2.7"
   }
 }

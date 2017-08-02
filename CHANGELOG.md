@@ -1,3 +1,7 @@
+### 1.0.4 (2017-08-02)
+
+- Fix document formatting to allow tab indentation
+
 ### 1.0.3 (2017-07-15)
 
 - Lowercase xml main file
