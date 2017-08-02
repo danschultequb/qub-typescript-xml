@@ -208,6 +208,7 @@ suite("XML", () => {
                 const context = new xml.FormatContext();
                 assert.deepEqual(context.data, {
                     singleIndent: "  ",
+                    tabLength: 2,
                     currentIndent: "",
                     newline: "\n",
                     currentColumnIndex: 0,
@@ -224,6 +225,7 @@ suite("XML", () => {
 
             constructorTest(undefined, {
                 singleIndent: "  ",
+                tabLength: 2,
                 currentIndent: "",
                 newline: "\n",
                 currentColumnIndex: 0,
@@ -232,6 +234,7 @@ suite("XML", () => {
 
             constructorTest(null, {
                 singleIndent: "  ",
+                tabLength: 2,
                 currentIndent: "",
                 newline: "\n",
                 currentColumnIndex: 0,
@@ -240,6 +243,7 @@ suite("XML", () => {
 
             constructorTest({}, {
                 singleIndent: "  ",
+                tabLength: 2,
                 currentIndent: "",
                 newline: "\n",
                 currentColumnIndex: 0,
@@ -248,6 +252,7 @@ suite("XML", () => {
 
             constructorTest({ alignAttributes: undefined }, {
                 singleIndent: "  ",
+                tabLength: 2,
                 currentIndent: "",
                 newline: "\n",
                 currentColumnIndex: 0,
@@ -255,6 +260,7 @@ suite("XML", () => {
             });
             constructorTest({ alignAttributes: null }, {
                 singleIndent: "  ",
+                tabLength: 2,
                 currentIndent: "",
                 newline: "\n",
                 currentColumnIndex: 0,
@@ -262,6 +268,7 @@ suite("XML", () => {
             });
             constructorTest({ alignAttributes: false }, {
                 singleIndent: "  ",
+                tabLength: 2,
                 currentIndent: "",
                 newline: "\n",
                 currentColumnIndex: 0,
@@ -269,6 +276,7 @@ suite("XML", () => {
             });
             constructorTest({ alignAttributes: true }, {
                 singleIndent: "  ",
+                tabLength: 2,
                 currentIndent: "",
                 newline: "\n",
                 currentColumnIndex: 0,
@@ -277,6 +285,7 @@ suite("XML", () => {
 
             constructorTest({ currentIndent: undefined }, {
                 singleIndent: "  ",
+                tabLength: 2,
                 currentIndent: "",
                 newline: "\n",
                 currentColumnIndex: 0,
@@ -284,6 +293,7 @@ suite("XML", () => {
             });
             constructorTest({ currentIndent: null }, {
                 singleIndent: "  ",
+                tabLength: 2,
                 currentIndent: "",
                 newline: "\n",
                 currentColumnIndex: 0,
@@ -291,6 +301,7 @@ suite("XML", () => {
             });
             constructorTest({ currentIndent: "" }, {
                 singleIndent: "  ",
+                tabLength: 2,
                 currentIndent: "",
                 newline: "\n",
                 currentColumnIndex: 0,
@@ -298,6 +309,7 @@ suite("XML", () => {
             });
             constructorTest({ currentIndent: "     " }, {
                 singleIndent: "  ",
+                tabLength: 2,
                 currentIndent: "     ",
                 newline: "\n",
                 currentColumnIndex: 0,
@@ -305,6 +317,7 @@ suite("XML", () => {
             });
             constructorTest({ currentIndent: "abc" }, {
                 singleIndent: "  ",
+                tabLength: 2,
                 currentIndent: "abc",
                 newline: "\n",
                 currentColumnIndex: 0,
@@ -313,6 +326,7 @@ suite("XML", () => {
 
             constructorTest({ newline: undefined }, {
                 singleIndent: "  ",
+                tabLength: 2,
                 currentIndent: "",
                 newline: "\n",
                 currentColumnIndex: 0,
@@ -320,6 +334,7 @@ suite("XML", () => {
             });
             constructorTest({ newline: null }, {
                 singleIndent: "  ",
+                tabLength: 2,
                 currentIndent: "",
                 newline: "\n",
                 currentColumnIndex: 0,
@@ -327,6 +342,7 @@ suite("XML", () => {
             });
             constructorTest({ newline: "" }, {
                 singleIndent: "  ",
+                tabLength: 2,
                 currentIndent: "",
                 newline: "\n",
                 currentColumnIndex: 0,
@@ -334,6 +350,7 @@ suite("XML", () => {
             });
             constructorTest({ newline: "\n" }, {
                 singleIndent: "  ",
+                tabLength: 2,
                 currentIndent: "",
                 newline: "\n",
                 currentColumnIndex: 0,
@@ -341,6 +358,7 @@ suite("XML", () => {
             });
             constructorTest({ newline: "\r\n" }, {
                 singleIndent: "  ",
+                tabLength: 2,
                 currentIndent: "",
                 newline: "\r\n",
                 currentColumnIndex: 0,
@@ -348,6 +366,7 @@ suite("XML", () => {
             });
             constructorTest({ newline: "ab" }, {
                 singleIndent: "  ",
+                tabLength: 2,
                 currentIndent: "",
                 newline: "ab",
                 currentColumnIndex: 0,
@@ -356,6 +375,7 @@ suite("XML", () => {
 
             constructorTest({ singleIndent: undefined }, {
                 singleIndent: "  ",
+                tabLength: 2,
                 currentIndent: "",
                 newline: "\n",
                 currentColumnIndex: 0,
@@ -363,6 +383,7 @@ suite("XML", () => {
             });
             constructorTest({ singleIndent: null }, {
                 singleIndent: "  ",
+                tabLength: 2,
                 currentIndent: "",
                 newline: "\n",
                 currentColumnIndex: 0,
@@ -370,6 +391,7 @@ suite("XML", () => {
             });
             constructorTest({ singleIndent: "" }, {
                 singleIndent: "  ",
+                tabLength: 2,
                 currentIndent: "",
                 newline: "\n",
                 currentColumnIndex: 0,
@@ -377,6 +399,7 @@ suite("XML", () => {
             });
             constructorTest({ singleIndent: " " }, {
                 singleIndent: " ",
+                tabLength: 2,
                 currentIndent: "",
                 newline: "\n",
                 currentColumnIndex: 0,
@@ -384,6 +407,7 @@ suite("XML", () => {
             });
             constructorTest({ singleIndent: "  " }, {
                 singleIndent: "  ",
+                tabLength: 2,
                 currentIndent: "",
                 newline: "\n",
                 currentColumnIndex: 0,
@@ -391,6 +415,7 @@ suite("XML", () => {
             });
             constructorTest({ singleIndent: "123" }, {
                 singleIndent: "123",
+                tabLength: 2,
                 currentIndent: "",
                 newline: "\n",
                 currentColumnIndex: 0,
@@ -399,6 +424,7 @@ suite("XML", () => {
 
             constructorTest({ currentColumnIndex: undefined }, {
                 singleIndent: "  ",
+                tabLength: 2,
                 currentIndent: "",
                 newline: "\n",
                 currentColumnIndex: 0,
@@ -406,6 +432,7 @@ suite("XML", () => {
             });
             constructorTest({ currentColumnIndex: null }, {
                 singleIndent: "  ",
+                tabLength: 2,
                 currentIndent: "",
                 newline: "\n",
                 currentColumnIndex: 0,
@@ -413,6 +440,7 @@ suite("XML", () => {
             });
             constructorTest({ currentColumnIndex: -10 }, {
                 singleIndent: "  ",
+                tabLength: 2,
                 currentIndent: "",
                 newline: "\n",
                 currentColumnIndex: -10,
@@ -420,6 +448,7 @@ suite("XML", () => {
             });
             constructorTest({ currentColumnIndex: 0 }, {
                 singleIndent: "  ",
+                tabLength: 2,
                 currentIndent: "",
                 newline: "\n",
                 currentColumnIndex: 0,
@@ -427,6 +456,7 @@ suite("XML", () => {
             });
             constructorTest({ currentColumnIndex: 20 }, {
                 singleIndent: "  ",
+                tabLength: 2,
                 currentIndent: "",
                 newline: "\n",
                 currentColumnIndex: 20,
@@ -3716,15 +3746,32 @@ suite("XML", () => {
 
         documentFormatTest([parseEmptyElement(`<a b="c"\nd="e"/>`)], { alignAttributes: false }, `<a b="c"\n  d="e"/>`);
         documentFormatTest([parseEmptyElement(`<a b="c"\nd="e"/>`)], { alignAttributes: true }, `<a b="c"\n   d="e"/>`);
+        documentFormatTest([parseEmptyElement(`<a b="c"\nd="e"/>`)], { alignAttributes: false, singleIndent: "\t" }, `<a b="c"\n\td="e"/>`);
+        documentFormatTest([parseEmptyElement(`<a b="c"\nd="e"/>`)], { alignAttributes: true, singleIndent: "\t", tabLength: 2 }, `<a b="c"\n\t d="e"/>`);
+        documentFormatTest([parseEmptyElement(`<a b="c"\nd="e"/>`)], { alignAttributes: true, singleIndent: "\t", tabLength: 3 }, `<a b="c"\n\td="e"/>`);
+        documentFormatTest([parseEmptyElement(`<a b="c"\nd="e"/>`)], { alignAttributes: true, singleIndent: "\t", tabLength: 4 }, `<a b="c"\n   d="e"/>`);
 
         documentFormatTest([parseElement(`<a b="c"\nd="e"></a>`)], { alignAttributes: false }, `<a b="c"\n  d="e"/>`);
         documentFormatTest([parseElement(`<a b="c"\nd="e"></a>`)], { alignAttributes: true }, `<a b="c"\n   d="e"/>`);
+        documentFormatTest([parseElement(`<a b="c"\nd="e"></a>`)], { alignAttributes: false, singleIndent: "\t" }, `<a b="c"\n\td="e"/>`);
+        documentFormatTest([parseElement(`<a b="c"\nd="e"></a>`)], { alignAttributes: true, singleIndent: "\t", tabLength: 2 }, `<a b="c"\n\t d="e"/>`);
+        documentFormatTest([parseElement(`<a b="c"\nd="e"></a>`)], { alignAttributes: true, singleIndent: "\t", tabLength: 3 }, `<a b="c"\n\td="e"/>`);
+        documentFormatTest([parseElement(`<a b="c"\nd="e"></a>`)], { alignAttributes: true, singleIndent: "\t", tabLength: 4 }, `<a b="c"\n   d="e"/>`);
 
         documentFormatTest([parseElement(`<a><b c="d"\ne="f"/></a>`)], { alignAttributes: false }, `<a>\n  <b c="d"\n    e="f"/>\n</a>`);
         documentFormatTest([parseElement(`<a><b c="d"\ne="f"/></a>`)], { alignAttributes: true }, `<a>\n  <b c="d"\n     e="f"/>\n</a>`);
+        documentFormatTest([parseElement(`<a><b c="d"\ne="f"/></a>`)], { alignAttributes: false, singleIndent: "\t" }, `<a>\n\t<b c="d"\n\t\te="f"/>\n</a>`);
+        documentFormatTest([parseElement(`<a><b c="d"\ne="f"/></a>`)], { alignAttributes: true, singleIndent: "\t", tabLength: 2 }, `<a>\n\t<b c="d"\n\t\t e="f"/>\n</a>`);
+        documentFormatTest([parseElement(`<a><b c="d"\ne="f"/></a>`)], { alignAttributes: true, singleIndent: "\t", tabLength: 3 }, `<a>\n\t<b c="d"\n\t\te="f"/>\n</a>`);
+        documentFormatTest([parseElement(`<a><b c="d"\ne="f"/></a>`)], { alignAttributes: true, singleIndent: "\t", tabLength: 4 }, `<a>\n\t<b c="d"\n\t   e="f"/>\n</a>`);
 
         documentFormatTest([parseElement(`<a><b c="d"\ne="f"></b></a>`)], { alignAttributes: false }, `<a>\n  <b c="d"\n    e="f"/>\n</a>`);
         documentFormatTest([parseElement(`<a><b c="d"\ne="f"></b></a>`)], { alignAttributes: true }, `<a>\n  <b c="d"\n     e="f"/>\n</a>`);
+        documentFormatTest([parseElement(`<a><b c="d"\ne="f"></b></a>`)], { alignAttributes: false, singleIndent: "\t" }, `<a>\n\t<b c="d"\n\t\te="f"/>\n</a>`);
+        documentFormatTest([parseElement(`<a><b c="d"\ne="f"></b></a>`)], { alignAttributes: true, singleIndent: "\t" }, `<a>\n\t<b c="d"\n\t\t e="f"/>\n</a>`);
+        documentFormatTest([parseElement(`<a><b c="d"\ne="f"></b></a>`)], { alignAttributes: true, singleIndent: "\t", tabLength: 2 }, `<a>\n\t<b c="d"\n\t\t e="f"/>\n</a>`);
+        documentFormatTest([parseElement(`<a><b c="d"\ne="f"></b></a>`)], { alignAttributes: true, singleIndent: "\t", tabLength: 3 }, `<a>\n\t<b c="d"\n\t\te="f"/>\n</a>`);
+        documentFormatTest([parseElement(`<a><b c="d"\ne="f"></b></a>`)], { alignAttributes: true, singleIndent: "\t", tabLength: 4 }, `<a>\n\t<b c="d"\n\t   e="f"/>\n</a>`);
     });
 
     suite("parseElement()", () => {

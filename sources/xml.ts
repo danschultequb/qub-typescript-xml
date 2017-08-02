@@ -34,6 +34,11 @@ export interface FormatContextData {
     singleIndent?: string;
 
     /**
+     * The number of spaces that make up a tab indent.
+     */
+    tabLength?: number;
+
+    /**
      * The current indentation of the segment being formatted.
      */
     currentIndent?: string;
@@ -69,6 +74,10 @@ export class FormatContext {
             _data.singleIndent = "  ";
         }
 
+        if (!qub.isDefined(_data.tabLength)) {
+            _data.tabLength = 2;
+        }
+
         if (!qub.isDefined(_data.currentIndent)) {
             _data.currentIndent = "";
         }
@@ -87,6 +96,10 @@ export class FormatContext {
 
     public get singleIndent(): string {
         return this._data.singleIndent;
+    }
+
+    public get tabLength(): number {
+        return this._data.tabLength;
     }
 
     public get newLine(): string {
@@ -132,6 +145,9 @@ export class FormatContext {
             for (let i = 0; i < formattedStringLength; ++i) {
                 if (formattedString[i] === "\n") {
                     this._data.currentColumnIndex = 0;
+                }
+                else if (formattedString[i] === "\t") {
+                    this._data.currentColumnIndex += this.tabLength;
                 }
                 else {
                     this._data.currentColumnIndex++;
@@ -787,9 +803,23 @@ export abstract class Tag extends SegmentGroup {
                 }
 
                 if (!setAlignAttributeIndentation && context.alignAttributes && segment instanceof Attribute) {
-                    context.pushNewIndent(qub.repeat(" ", context.currentColumnIndex));
+                    let newIndent: string = "";
+                    let newIndentColumnCount: number = 0;
+
+                    if (context.singleIndent === "\t") {
+                        const tabsToAdd: number = Math.floor(context.currentColumnIndex / context.tabLength);
+                        newIndent += qub.repeat("\t", tabsToAdd);
+                        newIndentColumnCount += tabsToAdd * context.tabLength;
+                    }
+
+                    if (newIndentColumnCount < context.currentColumnIndex) {
+                        newIndent += qub.repeat(" ", context.currentColumnIndex - newIndentColumnCount);
+                    }
+
+                    context.pushNewIndent(newIndent);
                     setAlignAttributeIndentation = true;
                 }
+
                 result += segment.format(context);
 
                 previousSegmentWasWhitespace = false;
@@ -3003,7 +3033,7 @@ export class ChildElementSchema<ElementType> {
  * this instead of just using the name because some elements can have different schemas based on
  * where they exist in an XML document.
  */
-export interface ElementSchemaContents<ElementType,ExtraPropertiesType = Object> {
+export interface ElementSchemaContents<ElementType, ExtraPropertiesType = Object> {
     /**
      * The expected element name.
      */
@@ -3047,8 +3077,8 @@ export interface ElementSchemaContents<ElementType,ExtraPropertiesType = Object>
  * this instead of just using the name because some elements can have different schemas based on
  * where they exist in an XML document.
  */
-export class ElementSchema<ElementType,ExtraPropertiesType = Object> {
-    constructor(private _contents: ElementSchemaContents<ElementType,ExtraPropertiesType>) {
+export class ElementSchema<ElementType, ExtraPropertiesType = Object> {
+    constructor(private _contents: ElementSchemaContents<ElementType, ExtraPropertiesType>) {
     }
 
     /**
