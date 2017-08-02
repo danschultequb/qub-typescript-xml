@@ -3750,6 +3750,7 @@ suite("XML", () => {
         documentFormatTest([parseEmptyElement(`<a b="c"\nd="e"/>`)], { alignAttributes: true, singleIndent: "\t", tabLength: 2 }, `<a b="c"\n\t d="e"/>`);
         documentFormatTest([parseEmptyElement(`<a b="c"\nd="e"/>`)], { alignAttributes: true, singleIndent: "\t", tabLength: 3 }, `<a b="c"\n\td="e"/>`);
         documentFormatTest([parseEmptyElement(`<a b="c"\nd="e"/>`)], { alignAttributes: true, singleIndent: "\t", tabLength: 4 }, `<a b="c"\n   d="e"/>`);
+        documentFormatTest([parseEmptyElement(`<sometag firstattr=""\nsecond="" />`)], { alignAttributes: true }, `<sometag firstattr=""\n         second="" />`);
 
         documentFormatTest([parseElement(`<a b="c"\nd="e"></a>`)], { alignAttributes: false }, `<a b="c"\n  d="e"/>`);
         documentFormatTest([parseElement(`<a b="c"\nd="e"></a>`)], { alignAttributes: true }, `<a b="c"\n   d="e"/>`);
