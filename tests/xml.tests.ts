@@ -212,7 +212,8 @@ suite("XML", () => {
                     currentIndent: "",
                     newline: "\n",
                     currentColumnIndex: 0,
-                    alignAttributes: false
+                    alignAttributes: false,
+                    collapseEmptyElements: true
                 })
             });
 
@@ -229,7 +230,8 @@ suite("XML", () => {
                 currentIndent: "",
                 newline: "\n",
                 currentColumnIndex: 0,
-                alignAttributes: false
+                alignAttributes: false,
+                collapseEmptyElements: true
             });
 
             constructorTest(null, {
@@ -238,7 +240,8 @@ suite("XML", () => {
                 currentIndent: "",
                 newline: "\n",
                 currentColumnIndex: 0,
-                alignAttributes: false
+                alignAttributes: false,
+                collapseEmptyElements: true
             });
 
             constructorTest({}, {
@@ -247,7 +250,8 @@ suite("XML", () => {
                 currentIndent: "",
                 newline: "\n",
                 currentColumnIndex: 0,
-                alignAttributes: false
+                alignAttributes: false,
+                collapseEmptyElements: true
             });
 
             constructorTest({ alignAttributes: undefined }, {
@@ -256,7 +260,8 @@ suite("XML", () => {
                 currentIndent: "",
                 newline: "\n",
                 currentColumnIndex: 0,
-                alignAttributes: false
+                alignAttributes: false,
+                collapseEmptyElements: true
             });
             constructorTest({ alignAttributes: null }, {
                 singleIndent: "  ",
@@ -264,7 +269,8 @@ suite("XML", () => {
                 currentIndent: "",
                 newline: "\n",
                 currentColumnIndex: 0,
-                alignAttributes: false
+                alignAttributes: false,
+                collapseEmptyElements: true
             });
             constructorTest({ alignAttributes: false }, {
                 singleIndent: "  ",
@@ -272,7 +278,8 @@ suite("XML", () => {
                 currentIndent: "",
                 newline: "\n",
                 currentColumnIndex: 0,
-                alignAttributes: false
+                alignAttributes: false,
+                collapseEmptyElements: true
             });
             constructorTest({ alignAttributes: true }, {
                 singleIndent: "  ",
@@ -280,7 +287,8 @@ suite("XML", () => {
                 currentIndent: "",
                 newline: "\n",
                 currentColumnIndex: 0,
-                alignAttributes: true
+                alignAttributes: true,
+                collapseEmptyElements: true
             });
 
             constructorTest({ currentIndent: undefined }, {
@@ -289,7 +297,8 @@ suite("XML", () => {
                 currentIndent: "",
                 newline: "\n",
                 currentColumnIndex: 0,
-                alignAttributes: false
+                alignAttributes: false,
+                collapseEmptyElements: true
             });
             constructorTest({ currentIndent: null }, {
                 singleIndent: "  ",
@@ -297,7 +306,8 @@ suite("XML", () => {
                 currentIndent: "",
                 newline: "\n",
                 currentColumnIndex: 0,
-                alignAttributes: false
+                alignAttributes: false,
+                collapseEmptyElements: true
             });
             constructorTest({ currentIndent: "" }, {
                 singleIndent: "  ",
@@ -305,7 +315,8 @@ suite("XML", () => {
                 currentIndent: "",
                 newline: "\n",
                 currentColumnIndex: 0,
-                alignAttributes: false
+                alignAttributes: false,
+                collapseEmptyElements: true
             });
             constructorTest({ currentIndent: "     " }, {
                 singleIndent: "  ",
@@ -313,7 +324,8 @@ suite("XML", () => {
                 currentIndent: "     ",
                 newline: "\n",
                 currentColumnIndex: 0,
-                alignAttributes: false
+                alignAttributes: false,
+                collapseEmptyElements: true
             });
             constructorTest({ currentIndent: "abc" }, {
                 singleIndent: "  ",
@@ -321,7 +333,8 @@ suite("XML", () => {
                 currentIndent: "abc",
                 newline: "\n",
                 currentColumnIndex: 0,
-                alignAttributes: false
+                alignAttributes: false,
+                collapseEmptyElements: true
             });
 
             constructorTest({ newline: undefined }, {
@@ -330,7 +343,8 @@ suite("XML", () => {
                 currentIndent: "",
                 newline: "\n",
                 currentColumnIndex: 0,
-                alignAttributes: false
+                alignAttributes: false,
+                collapseEmptyElements: true
             });
             constructorTest({ newline: null }, {
                 singleIndent: "  ",
@@ -338,7 +352,8 @@ suite("XML", () => {
                 currentIndent: "",
                 newline: "\n",
                 currentColumnIndex: 0,
-                alignAttributes: false
+                alignAttributes: false,
+                collapseEmptyElements: true
             });
             constructorTest({ newline: "" }, {
                 singleIndent: "  ",
@@ -346,7 +361,8 @@ suite("XML", () => {
                 currentIndent: "",
                 newline: "\n",
                 currentColumnIndex: 0,
-                alignAttributes: false
+                alignAttributes: false,
+                collapseEmptyElements: true
             });
             constructorTest({ newline: "\n" }, {
                 singleIndent: "  ",
@@ -354,7 +370,8 @@ suite("XML", () => {
                 currentIndent: "",
                 newline: "\n",
                 currentColumnIndex: 0,
-                alignAttributes: false
+                alignAttributes: false,
+                collapseEmptyElements: true
             });
             constructorTest({ newline: "\r\n" }, {
                 singleIndent: "  ",
@@ -362,7 +379,8 @@ suite("XML", () => {
                 currentIndent: "",
                 newline: "\r\n",
                 currentColumnIndex: 0,
-                alignAttributes: false
+                alignAttributes: false,
+                collapseEmptyElements: true
             });
             constructorTest({ newline: "ab" }, {
                 singleIndent: "  ",
@@ -370,7 +388,8 @@ suite("XML", () => {
                 currentIndent: "",
                 newline: "ab",
                 currentColumnIndex: 0,
-                alignAttributes: false
+                alignAttributes: false,
+                collapseEmptyElements: true
             });
 
             constructorTest({ singleIndent: undefined }, {
@@ -379,7 +398,8 @@ suite("XML", () => {
                 currentIndent: "",
                 newline: "\n",
                 currentColumnIndex: 0,
-                alignAttributes: false
+                alignAttributes: false,
+                collapseEmptyElements: true
             });
             constructorTest({ singleIndent: null }, {
                 singleIndent: "  ",
@@ -387,7 +407,8 @@ suite("XML", () => {
                 currentIndent: "",
                 newline: "\n",
                 currentColumnIndex: 0,
-                alignAttributes: false
+                alignAttributes: false,
+                collapseEmptyElements: true
             });
             constructorTest({ singleIndent: "" }, {
                 singleIndent: "  ",
@@ -395,7 +416,8 @@ suite("XML", () => {
                 currentIndent: "",
                 newline: "\n",
                 currentColumnIndex: 0,
-                alignAttributes: false
+                alignAttributes: false,
+                collapseEmptyElements: true
             });
             constructorTest({ singleIndent: " " }, {
                 singleIndent: " ",
@@ -403,7 +425,8 @@ suite("XML", () => {
                 currentIndent: "",
                 newline: "\n",
                 currentColumnIndex: 0,
-                alignAttributes: false
+                alignAttributes: false,
+                collapseEmptyElements: true
             });
             constructorTest({ singleIndent: "  " }, {
                 singleIndent: "  ",
@@ -411,7 +434,8 @@ suite("XML", () => {
                 currentIndent: "",
                 newline: "\n",
                 currentColumnIndex: 0,
-                alignAttributes: false
+                alignAttributes: false,
+                collapseEmptyElements: true
             });
             constructorTest({ singleIndent: "123" }, {
                 singleIndent: "123",
@@ -419,7 +443,8 @@ suite("XML", () => {
                 currentIndent: "",
                 newline: "\n",
                 currentColumnIndex: 0,
-                alignAttributes: false
+                alignAttributes: false,
+                collapseEmptyElements: true
             });
 
             constructorTest({ currentColumnIndex: undefined }, {
@@ -428,7 +453,8 @@ suite("XML", () => {
                 currentIndent: "",
                 newline: "\n",
                 currentColumnIndex: 0,
-                alignAttributes: false
+                alignAttributes: false,
+                collapseEmptyElements: true
             });
             constructorTest({ currentColumnIndex: null }, {
                 singleIndent: "  ",
@@ -436,7 +462,8 @@ suite("XML", () => {
                 currentIndent: "",
                 newline: "\n",
                 currentColumnIndex: 0,
-                alignAttributes: false
+                alignAttributes: false,
+                collapseEmptyElements: true
             });
             constructorTest({ currentColumnIndex: -10 }, {
                 singleIndent: "  ",
@@ -444,7 +471,8 @@ suite("XML", () => {
                 currentIndent: "",
                 newline: "\n",
                 currentColumnIndex: -10,
-                alignAttributes: false
+                alignAttributes: false,
+                collapseEmptyElements: true
             });
             constructorTest({ currentColumnIndex: 0 }, {
                 singleIndent: "  ",
@@ -452,7 +480,8 @@ suite("XML", () => {
                 currentIndent: "",
                 newline: "\n",
                 currentColumnIndex: 0,
-                alignAttributes: false
+                alignAttributes: false,
+                collapseEmptyElements: true
             });
             constructorTest({ currentColumnIndex: 20 }, {
                 singleIndent: "  ",
@@ -460,7 +489,44 @@ suite("XML", () => {
                 currentIndent: "",
                 newline: "\n",
                 currentColumnIndex: 20,
-                alignAttributes: false
+                alignAttributes: false,
+                collapseEmptyElements: true
+            });
+            constructorTest({ collapseEmptyElements: undefined }, {
+                singleIndent: "  ",
+                tabLength: 2,
+                currentIndent: "",
+                newline: "\n",
+                currentColumnIndex: 0,
+                alignAttributes: false,
+                collapseEmptyElements: true
+            });
+            constructorTest({ collapseEmptyElements: null }, {
+                singleIndent: "  ",
+                tabLength: 2,
+                currentIndent: "",
+                newline: "\n",
+                currentColumnIndex: 0,
+                alignAttributes: false,
+                collapseEmptyElements: true
+            });
+            constructorTest({ collapseEmptyElements: false }, {
+                singleIndent: "  ",
+                tabLength: 2,
+                currentIndent: "",
+                newline: "\n",
+                currentColumnIndex: 0,
+                alignAttributes: false,
+                collapseEmptyElements: false
+            });
+            constructorTest({ collapseEmptyElements: true }, {
+                singleIndent: "  ",
+                tabLength: 2,
+                currentIndent: "",
+                newline: "\n",
+                currentColumnIndex: 0,
+                alignAttributes: false,
+                collapseEmptyElements: true
             });
         });
 
@@ -3775,6 +3841,9 @@ suite("XML", () => {
         documentFormatTest([parseElement(`<a><b c="d"\ne="f"></b></a>`)], { alignAttributes: true, singleIndent: "\t", tabLength: 2 }, `<a>\n\t<b c="d"\n\t\t e="f"/>\n</a>`);
         documentFormatTest([parseElement(`<a><b c="d"\ne="f"></b></a>`)], { alignAttributes: true, singleIndent: "\t", tabLength: 3 }, `<a>\n\t<b c="d"\n\t\te="f"/>\n</a>`);
         documentFormatTest([parseElement(`<a><b c="d"\ne="f"></b></a>`)], { alignAttributes: true, singleIndent: "\t", tabLength: 4 }, `<a>\n\t<b c="d"\n\t   e="f"/>\n</a>`);
+
+        documentFormatTest([parseElement(`<a></a>`)], { collapseEmptyElements: false }, `<a></a>`);
+        documentFormatTest([parseElement(`<a></a>`)], { collapseEmptyElements: true }, `<a/>`);
     });
 
     suite("parseElement()", () => {
