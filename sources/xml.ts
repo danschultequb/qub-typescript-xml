@@ -50,7 +50,17 @@ export interface FormatContextData {
 
     currentColumnIndex?: number;
 
+    /**
+     * Whether or not attributes on a seperate line from the element's initial line will be indented
+     * to line up with the first element on the initial line (true) or will be indented one level
+     * more than the element's indentation (false).
+     */
     alignAttributes?: boolean;
+
+    /**
+     * Whether or not elements with no children and no text will be collapsed into an empty element.
+     */
+    collapseEmptyElements?: boolean;
 }
 
 export class FormatContext {
@@ -64,6 +74,10 @@ export class FormatContext {
 
         if (!qub.isDefined(_data.alignAttributes)) {
             _data.alignAttributes = false;
+        }
+
+        if (!qub.isDefined(_data.collapseEmptyElements)) {
+            _data.collapseEmptyElements = true;
         }
 
         if (!_data.newline) {

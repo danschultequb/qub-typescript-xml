@@ -3775,6 +3775,9 @@ suite("XML", () => {
         documentFormatTest([parseElement(`<a><b c="d"\ne="f"></b></a>`)], { alignAttributes: true, singleIndent: "\t", tabLength: 2 }, `<a>\n\t<b c="d"\n\t\t e="f"/>\n</a>`);
         documentFormatTest([parseElement(`<a><b c="d"\ne="f"></b></a>`)], { alignAttributes: true, singleIndent: "\t", tabLength: 3 }, `<a>\n\t<b c="d"\n\t\te="f"/>\n</a>`);
         documentFormatTest([parseElement(`<a><b c="d"\ne="f"></b></a>`)], { alignAttributes: true, singleIndent: "\t", tabLength: 4 }, `<a>\n\t<b c="d"\n\t   e="f"/>\n</a>`);
+
+        documentFormatTest([parseElement(`<a></a>`)], { collapseEmptyElements: false }, `<a></a>`);
+        documentFormatTest([parseElement(`<a></a>`)], { collapseEmptyElements: true }, `<a/>`);
     });
 
     suite("parseElement()", () => {
