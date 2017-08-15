@@ -149,6 +149,10 @@ export class FormatContext {
         return this._data.alignAttributes;
     }
 
+    public get collapseEmptyElements(): boolean {
+        return this._data.collapseEmptyElements;
+    }
+
     /**
      * Update this FormatContext's data based on the provided formatted string.
      * @param formattedString A small section of a larger formatted string.
@@ -2568,7 +2572,7 @@ export class Element extends SegmentGroup {
             if (this.endTag) {
                 const endTagFormattedText: string = this.endTag.format(context);
 
-                if (endTagFormattedText === `</${this.startTag.getName().toString()}>`) {
+                if (context.collapseEmptyElements && endTagFormattedText === `</${this.startTag.getName().toString()}>`) {
                     result = result.substr(0, result.length - 1) + "/>";
                     context.currentColumnIndex -= (endTagFormattedText.length - 1);
                 }
