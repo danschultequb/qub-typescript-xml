@@ -1,3 +1,7 @@
+### 1.0.5 (2017-08-14)
+
+- Update dependencies
+
 ### 1.0.4 (2017-08-02)
 
 - Fix document formatting to allow tab indentation

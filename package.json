@@ -1,6 +1,6 @@
 {
   "name": "qub-xml",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "A collection of classes and functions for interacting with XML documents",
   "main": "output/sources/xml",
   "typings": "output/sources/xml",
@@ -41,15 +41,15 @@
   "homepage": "https://github.com/danschultequb/qub-typescript-xml#readme",
   "devDependencies": {
     "@types/mocha": "2.2.41",
-    "@types/node": "8.0.13",
+    "@types/node": "8.0.22",
     "coveralls": "2.13.1",
-    "mocha": "3.4.2",
-    "nyc": "11.0.3",
+    "mocha": "3.5.0",
+    "nyc": "11.1.0",
     "open-cli": "1.0.5",
     "source-map-support": "0.4.15",
-    "typescript": "2.4.1"
+    "typescript": "2.4.2"
   },
   "dependencies": {
-    "qub": "1.2.7"
+    "qub": "1.4.0"
   }
 }
