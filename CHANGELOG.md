@@ -1,3 +1,7 @@
+### 1.0.7 (2017-08-15)
+
+- Fix formatting bug where an indent was being lost when alignAttributes was true but the tag didn't have any attributes.
+
 ### 1.0.6 (2017-08-15)
 
 - Add FormatContext option for collapsing elements with no content.
