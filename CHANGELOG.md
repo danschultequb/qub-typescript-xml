@@ -1,3 +1,7 @@
+### 1.0.6 (2017-08-15)
+
+- Add FormatContext option for collapsing elements with no content.
+
 ### 1.0.5 (2017-08-14)
 
 - Update dependencies
