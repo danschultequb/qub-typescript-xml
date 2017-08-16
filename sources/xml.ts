@@ -795,8 +795,11 @@ export abstract class Tag extends SegmentGroup {
 
         let result: string = "";
 
+        let pushedNewIndent: boolean = false;
+
         if (!context.alignAttributes) {
             context.pushNewIndent();
+            pushedNewIndent = true;
         }
 
         let previousSegmentWasWhitespace: boolean = false;
@@ -835,6 +838,7 @@ export abstract class Tag extends SegmentGroup {
                     }
 
                     context.pushNewIndent(newIndent);
+                    pushedNewIndent = true;
                     setAlignAttributeIndentation = true;
                 }
 
@@ -845,7 +849,9 @@ export abstract class Tag extends SegmentGroup {
             }
         }
 
-        context.popIndent();
+        if (pushedNewIndent) {
+            context.popIndent();
+        }
 
         return result;
     }
